@@ -17,6 +17,9 @@ add_executable(aruco_marker_generation aruco_marker_generation.cpp)
 target_link_libraries(aruco_marker_generation ${OpenCV_LIBS})
 target_link_libraries(aruco_marker_generation ${LIBHARU_LIBRARY})
 
+add_executable(aruco_marker_detection aruco_marker_detection.cpp)
+target_link_libraries(aruco_marker_detection ${OpenCV_LIBS})
+
 add_executable(camera_calibration camera_calibration.cpp)
 target_link_libraries(camera_calibration ${OpenCV_LIBS})
 

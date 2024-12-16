@@ -25,16 +25,13 @@ int main() {
   std::string folderPath = "../resources/camera_calibration/images/";
   std::vector<std::string> imagePaths;
 
-  // Collect image paths from the directory
-  for (const auto &entry :
-       std::filesystem::directory_iterator(folderPath)) {
+  for (const auto &entry : std::filesystem::directory_iterator(folderPath)) {
     imagePaths.push_back(entry.path().string());
   }
 
   cv::Mat frame, gray;
   std::vector<cv::Point2f> corners;
 
-  // Process each image
   for (const std::string &imagePath : imagePaths) {
     frame = cv::imread(imagePath);
 
@@ -66,7 +63,7 @@ int main() {
       cv::drawChessboardCorners(
           frame, cv::Size(CHECKERBOARD[0], CHECKERBOARD[1]), corners, found);
       cv::imshow("Chessboard Detection", frame);
-      cv::waitKey(500); // Pause to visualize each detection
+      cv::waitKey(1000); // Pause to visualize each detection
     } else {
       std::cout << "Chessboard not found in " << imagePath << std::endl;
     }
@@ -74,17 +71,16 @@ int main() {
 
   cv::destroyAllWindows();
 
-  // Perform camera calibration
-  cv::Mat cameraMatrix, distCoeffs, R, T;
+  cv::Mat cameraMatrix, distCoeffs;
   std::vector<cv::Mat> rvecs, tvecs;
 
   if (!imgpoints.empty()) {
     double error = cv::calibrateCamera(objpoints, imgpoints, gray.size(),
                                        cameraMatrix, distCoeffs, rvecs, tvecs);
 
-    // Output the camera calibration data
     std::cout << "Camera Matrix: " << std::endl << cameraMatrix << std::endl;
-    std::cout << "Distortion Coefficients: " << std::endl << distCoeffs << std::endl;
+    std::cout << "Distortion Coefficients: " << std::endl
+              << distCoeffs << std::endl;
     std::cout << "Overall Re-projection Error: " << error << std::endl;
 
     // Save camera calibration to file
@@ -92,7 +88,8 @@ int main() {
     fs << "cameraMatrix" << cameraMatrix;
     fs << "distCoeffs" << distCoeffs;
     fs.release();
-    std::cout << "Calibration parameters saved to 'camera_calib.yml'." << std::endl;
+    std::cout << "Calibration parameters saved to 'camera_calib.yml'."
+              << std::endl;
   } else {
     std::cout << "Not enough valid images for calibration!" << std::endl;
   }

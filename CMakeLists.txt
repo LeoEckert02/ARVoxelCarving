@@ -1,27 +1,40 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ARVoxelCarving)
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Project name
+project(fp_meshessing)
 
-find_package(OpenCV REQUIRED)
+# Options
+set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Libs CACHE PATH "Path to lib folder")
+set(Eigen3_DIR ${LIBRARY_DIR}/Eigen/share/eigen3/cmake CACHE PATH "Path to installed Eigen")
+# Set C++ flags
+set(CMAKE_CXX_STANDARD 14)
 
-set(LIBHARU_INCLUDE_DIR "/usr/local/Cellar/libharu/2.4.4/include")
-set(LIBHARU_LIBRARY "/usr/local/Cellar/libharu/2.4.4/lib/libhpdf.2.4.4.dylib")
+find_package(Eigen3 REQUIRED)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${LIBHARU_INCLUDE_DIR})
+# Define header and source files
+set(HEADERS
+    mesh/MarchingCubes.h
+    mesh/Mesh.h
+    mesh/MeshDataStructures.h
+    mesh/MeshLoader.h
+    mesh/MeshSmoother.h
+    mesh/SDF.h
+)
 
-add_executable(aruco_marker_generation aruco_marker_generation.cpp)
-target_link_libraries(aruco_marker_generation ${OpenCV_LIBS})
-target_link_libraries(aruco_marker_generation ${LIBHARU_LIBRARY})
+set(SOURCES
+    mesh/MarchingCubes.cpp
+    mesh/Mesh.cpp
+    mesh/MeshLoader.cpp
+    mesh/MeshSmoother.cpp
+    main.cpp
+)
 
-add_executable(aruco_marker_detection aruco_marker_detection.cpp)
-target_link_libraries(aruco_marker_detection ${OpenCV_LIBS})
+add_executable(fp_meshessing ${HEADERS} ${SOURCES})
+target_include_directories(fp_meshessing PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_link_libraries(fp_meshessing Eigen3::Eigen)
 
-add_executable(camera_calibration camera_calibration.cpp)
-target_link_libraries(camera_calibration ${OpenCV_LIBS})
-
-# specify the path to libharu library (if not automatically found)
-link_directories("/usr/local/Cellar/libharu/2.4.4/lib")
+# Visual Studio properties
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT fp_meshessing)
+set_property(TARGET fp_meshessing PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)

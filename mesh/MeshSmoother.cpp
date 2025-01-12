@@ -1,6 +1,6 @@
 #include "MeshSmoother.h"
 
-const Mesh::Kernel& Mesh::MeshSmoother::getKernel() const {
+const std::shared_ptr<Kernel::Kernel>& Mesh::MeshSmoother::getKernel() const {
     return f_kernel;
 }
 
@@ -8,26 +8,22 @@ double Mesh::MeshSmoother::getRho() const {
     return f_rho;
 }
 
-void Mesh::MeshSmoother::setKernel(const Mesh::Kernel& kernel) {
-    f_kernel = kernel;
-}
-
-void Mesh::MeshSmoother::setKernel(Mesh::Kernel&& kernel) {
-    f_kernel = std::move(kernel);
+void Mesh::MeshSmoother::setKernel(Kernel::Kernel* kernel) {
+    f_kernel = std::shared_ptr<Kernel::Kernel>(kernel);
 }
 
 void Mesh::MeshSmoother::setRho(double rho) {
     f_rho = rho;
 }
 
-double Mesh::MeshSmoother::calculateDelta(Mesh::TriangleMesh& mesh, uint32_t id) const {
+double Mesh::MeshSmoother::calculateDelta(Mesh::TriangleMesh& mesh, const std::vector<uint32_t>& neighbours, uint32_t id) const {
     double deltaSq = 0;
-    uint16_t di = f_neighbours.at(id).size();
+    uint16_t di = neighbours.size();
     double sqrtDi = sqrt((double)(di));
     Vector3d vi = mesh.getVertex(id).f_coordinates;
 
     // Iterate over neighbours
-    for (auto nb: f_neighbours.at(id)) {
+    for (auto nb: neighbours) {
         uint16_t dj = f_neighbours.at(nb).size();
         Vector3d vj = mesh.getVertex(nb).f_coordinates;
         double sqrtDj = sqrt((double)(dj));
@@ -55,7 +51,7 @@ void Mesh::MeshSmoother::precalculateNeighbours(const Mesh::TriangleMesh &mesh) 
     }
 }
 
-void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterations) const {
+void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterations, bool wide) const {
     for (uint16_t i = 0; i < iterations; i++) {
         // Make new mesh coordinate vector
         std::vector<Vector3d> vertexCoordinates(mesh.getVertexCount());
@@ -71,18 +67,30 @@ void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterati
             // Copy previous value
             vertexCoordinates.at(id) = iter->f_coordinates;
 
-            // Get neighbours count
-            uint16_t di = f_neighbours.at(id).size();
+            // Get neighbours
+            std::vector<uint32_t> neighbours = f_neighbours.at(id);
+            if (wide) {
+                for (auto nb: f_neighbours.at(id)) {
+                    for (auto nbnb: f_neighbours.at(nb)) {
+                        if (nbnb == id) continue;
+                        if(std::find(neighbours.begin(), neighbours.end(), nbnb) == neighbours.end()) {
+                            neighbours.push_back(nbnb);
+                        }
+                    }
+                }
+            }
 
-            double delta = calculateDelta(mesh, iter->f_id);
+            uint16_t di = neighbours.size();
 
-            double kerMultiplier = f_kernel(delta) / f_rho;
+            double delta = calculateDelta(mesh, neighbours, iter->f_id);
+
+            double kerMultiplier = f_kernel->g(delta) / f_rho;
 
             // Divide multiplier by di for implicit averaging
             kerMultiplier /= (double)(di);
 
             // Iterate over neighbours
-            for (auto nb: f_neighbours.at(id)) {
+            for (auto nb: neighbours) {
                 Vector3d vj = mesh.getVertex(nb).f_coordinates;
                 // Add displacement vector
                 vertexCoordinates.at(id) += kerMultiplier * (vj - vi);

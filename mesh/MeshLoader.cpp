@@ -1,5 +1,4 @@
 #include "MeshLoader.h"
-#include <random>
 
 bool MeshLoader::loadTriangleMeshOff(const std::string& path, Mesh::TriangleMesh &mesh) {
     // Clear current mesh
@@ -38,19 +37,6 @@ bool MeshLoader::loadTriangleMeshOff(const std::string& path, Mesh::TriangleMesh
             ifStream >> coordinates.y();
             ifStream >> coordinates.z();
 
-            // // +++++++++++++++++++++++++++++++++++++++++++++++++++++
-            // // ADD NOISE
-            // const double mean = 0.0;
-            // const double stddev = 0.008;
-            // std::mt19937 generator(std::random_device{}());
-            // auto dist = std::bind(std::normal_distribution<double>{mean, stddev},
-            //     std::mt19937(std::random_device{}()));
-            // coordinates.x() += dist();
-            // coordinates.y() += dist();
-            // coordinates.z() += dist();
-            // // +++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
             // Read color
             Vector4i colorI;
             ifStream >> colorI.x();
@@ -69,6 +55,19 @@ bool MeshLoader::loadTriangleMeshOff(const std::string& path, Mesh::TriangleMesh
         }
     }
     else if (header.compare("OFF") == 0) {
+        // Start for cycle for number of vertices
+        for (unsigned i = 0; i < vCount; i++) {
+            Vector3d coordinates;
+            // Read coordinates
+            ifStream >> coordinates.x();
+            ifStream >> coordinates.y();
+            ifStream >> coordinates.z();
+
+            // Add vertex
+            mesh.addVertex(std::move(coordinates));
+        }
+    }
+    else if (header.compare("OFFTC") == 0) {
         // Start for cycle for number of vertices
         for (unsigned i = 0; i < vCount; i++) {
             Vector3d coordinates;
@@ -106,6 +105,12 @@ bool MeshLoader::loadTriangleMeshOff(const std::string& path, Mesh::TriangleMesh
         ifStream >> v3Id;
         // Add triangle
         mesh.addTriangle(v1Id, v2Id, v3Id);
+
+        if (header.compare("OFFTC") == 0) {
+            ifStream >> v1Id;
+            ifStream >> v2Id;
+            ifStream >> v3Id;
+        }
     }
 
     return true;

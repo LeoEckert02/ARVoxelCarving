@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "post_proc/MeshLoader.h"
-#include "post_proc/MarchingCubes.h"
-#include "post_proc/MeshSmoother.h"
+#include "mesh/MeshLoader.h"
+#include "mesh/MarchingCubes.h"
+#include "mesh/MeshSmoother.h"
 
 //https://www.researchgate.net/publication/44298376_3D-Mesh_denoising_using_an_improved_vertex_based_anisotropic_diffusion
 //https://link.springer.com/chapter/10.1007/978-3-642-31254-0_9
@@ -10,29 +10,29 @@
 int main(int argc, char const *argv[]) {
     srand (static_cast <unsigned> (time(0)));
     Mesh::TriangleMesh triMesh;
-    std::string inPath("../data/object_normal_noise.off");
+    std::string inPath("../data/features_normal_noise.off");
 
     std::cout << "Loading mesh..." << std::endl;
     MeshLoader::loadTriangleMeshOff(inPath, triMesh);
     std::cout << "Mesh loaded!" << std::endl;
 
+    // triMesh.addNoise(0.005);
+
+    // +++++++++++++++++++++++++++
+    // +++++++++SMOOTHING+++++++++
+    // +++++++++++++++++++++++++++
     Mesh::MeshSmoother smoother(
-        [](double x) {
-            return 1.;
-        },
-        1.
+        new Kernel::CauchyKernel(1, 0.8),
+        2.
     );
     std::cout << "Precalculating neighbours..." << std::endl;
     smoother.precalculateNeighbours(triMesh);
     std::cout << "Smoothing mesh..." << std::endl;
-    smoother.smoothenMesh(triMesh, 1);
+    smoother.smoothenMesh(triMesh, 10, false);
 
-    std::string outPath("../data/object_smoothened_average.off");
-    
-    std::cout << "Writing mesh..." << std::endl;
-    MeshLoader::writeTriangleMeshOff(outPath, triMesh);
-    std::cout << "Mesh written!" << std::endl;
-
+    // // +++++++++++++++++++++++++++
+    // // +++++NEIGHBOUR  SEARCH+++++
+    // // +++++++++++++++++++++++++++
     // std::cout << "Finding neighbours of vertex 15..." << std::endl;
     // auto n15 = triMesh.getVertexNeighbours(15);
     // std::cout << "Setting 15 as blue, neighbours as red..." << std::endl;
@@ -48,7 +48,9 @@ int main(int argc, char const *argv[]) {
     //     triMesh.vertex(nb).f_color = Vector4uc(255, 0, 0, 255);
     // }
 
-    // Mesh::TriangleMesh triMesh;
+    // // +++++++++++++++++++++++++++
+    // // +++++++++SDF MESH++++++++++
+    // // +++++++++++++++++++++++++++
     // std::cout << "Making SDF..." << std::endl;
     // SDF::SDFCSample sdfcs(
     //     100,
@@ -69,28 +71,37 @@ int main(int argc, char const *argv[]) {
     //     //         + 3 * (x * x * y * y + x * x * z * z + y * y * z * z)
     //     //         + 6 * x * y * z - 10 * (x * x + y * y + z * z) + 22;
     //     // }
-    //     [](Vector3d point) {
-    //         double x = point.x();
-    //         double y = point.y();
-    //         double z = point.z();
-    //         return 2 * y * (y * y - 3 * x * x) * (1 - z * z)
-    //         + (x * x + y * y) * (x * x + y * y)
-    //         - (9 * z * z - 1) * (1 - z * z);
-    //     }
+    //     // [](Vector3d point) {
+    //     //     double x = point.x();
+    //     //     double y = point.y();
+    //     //     double z = point.z();
+    //     //     return 2 * y * (y * y - 3 * x * x) * (1 - z * z)
+    //     //     + (x * x + y * y) * (x * x + y * y)
+    //     //     - (9 * z * z - 1) * (1 - z * z);
+    //     // }
     //     // [](Vector3d point) {
     //     //     double x = point.x();
     //     //     double y = point.y();
     //     //     double z = point.z();
     //     //     return sin(x) * sin(y) - z;
     //     // }
+    //     [](Vector3d point) {
+    //         double x = point.x();
+    //         double y = point.y();
+    //         double z = point.z();
+    //         return z - std::max(1.8 * sin(10 * x * x) * sin(10 * y * y) / (1 + 2 * abs(x) * abs(y)), 0.);
+    //     }
     // );
     // std::cout << "Done!" << std::endl;
     // MarchingCubes::MarchingCubesMeshGenerator generator;
     // std::cout << "Generating mesh..." << std::endl;
     // generator.generateMCMesh(triMesh, sdfcs, 0.);
     // std::cout << "Done!" << std::endl;
-    // std::cout << "Writing mesh..." << std::endl;
-    // MeshLoader::writeTriangleMeshOff("../data/sphere.off", triMesh);
-    // std::cout << "Done!" << std::endl;
-    // return 0;
+
+    std::string outPath("../data/features_sm_cauchy_10iter.off");
+    
+    std::cout << "Writing mesh..." << std::endl;
+    MeshLoader::writeTriangleMeshOff(outPath, triMesh);
+    std::cout << "Mesh written!" << std::endl;
+    return 0;
 }

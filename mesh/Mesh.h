@@ -3,6 +3,8 @@
 #include "MeshDataStructures.h"
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 namespace Mesh {
 
@@ -94,6 +96,8 @@ namespace Mesh {
         std::vector<uint32_t> getVertexNeighbours(uint32_t vId) const;
 
         #pragma endregion
+
+        void addNoise(double sigma);
     };
 
 }

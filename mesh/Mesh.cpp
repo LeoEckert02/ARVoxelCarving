@@ -121,10 +121,32 @@ std::vector<uint32_t> Mesh::TriangleMesh::getVertexNeighbours(uint32_t vId) cons
         iter++
     ) {
         if (iter->second.contains(vId)) {
-            if (iter->second.f_v1Id != vId) neighbourIds.push_back(iter->second.f_v1Id);
-            if (iter->second.f_v2Id != vId) neighbourIds.push_back(iter->second.f_v2Id);
-            if (iter->second.f_v3Id != vId) neighbourIds.push_back(iter->second.f_v3Id);
+            if (iter->second.f_v1Id != vId 
+                && std::find(neighbourIds.begin(), neighbourIds.end(), iter->second.f_v1Id) == neighbourIds.end()
+            ) neighbourIds.push_back(iter->second.f_v1Id);
+            if (iter->second.f_v2Id != vId 
+                && std::find(neighbourIds.begin(), neighbourIds.end(), iter->second.f_v2Id) == neighbourIds.end()
+            ) neighbourIds.push_back(iter->second.f_v2Id);
+            if (iter->second.f_v3Id != vId 
+                && std::find(neighbourIds.begin(), neighbourIds.end(), iter->second.f_v3Id) == neighbourIds.end()
+            ) neighbourIds.push_back(iter->second.f_v3Id);
         }
     }
     return neighbourIds;
+}
+
+void Mesh::TriangleMesh::addNoise(double sigma) {
+    const double mean = 0.0;
+    std::mt19937 generator(std::random_device{}());
+    auto dist = std::bind(std::normal_distribution<double>{mean, sigma},
+        std::mt19937(std::random_device{}()));
+    for (
+        std::vector<MDS::Vertex>::iterator iter = f_vertices.begin();
+        iter != f_vertices.end();
+        iter++
+    ) {
+        iter->f_coordinates.x() += dist();
+        iter->f_coordinates.y() += dist();
+        iter->f_coordinates.z() += dist();
+    }
 }

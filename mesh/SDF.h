@@ -6,7 +6,28 @@
 
 using namespace Eigen;
 
+
+
 namespace SDF {
+
+    // TEMP declaration of voxel grid and bounding box
+    struct BoundingBox {
+        Eigen::Vector3f minCorner;
+        Eigen::Vector3f maxCorner;
+    };
+
+    class VoxelGrid {
+    private:
+        BoundingBox boundingBox;
+        std::vector<std::vector<std::vector<bool>>> voxels;
+        std::vector<std::vector<std::vector<Vector4uc>>> colors;
+        
+    public:
+        const BoundingBox& getBoundingBox() const;
+        const std::vector<std::vector<std::vector<bool>>>& getVoxels() const;
+        const std::vector<std::vector<std::vector<Vector4uc>>>& getColors() const;
+        bool isVoxelOccupied(int x, int y, int z) const;
+    };
 
     typedef std::function<double(Vector3d)> ScalarFunction3D;
 
@@ -104,13 +125,39 @@ namespace SDF {
         }
 
         void fillSDF(const ScalarFunction3D& field) {
-            for (unsigned i = 0; i < f_n; i++) {
-                for (unsigned j = 0; j < f_m; j++) {
-                    for (unsigned k = 0; k < f_p; k++) {
+            for (uint32_t i = 0; i < f_n; i++) {
+                for (uint32_t j = 0; j < f_m; j++) {
+                    for (uint32_t k = 0; k < f_p; k++) {
                         value(i, j, k) = field(getPoint(i, j, k));
                     }
                 }
             }
+        }
+
+        static SDFCSample&& convertVoxelGridToSDFC(const VoxelGrid& voxelGrid) {
+            uint32_t n, m, p;
+            n = voxelGrid.getVoxels().size();
+            m = voxelGrid.getVoxels().at(0).size();
+            p = voxelGrid.getVoxels().at(0).at(0).size();
+
+            Vector3d origin = voxelGrid.getBoundingBox().minCorner;
+            Vector3d size = voxelGrid.getBoundingBox().maxCorner - origin;
+
+            SDFCSample sdfcs(n, m, p, origin, size);
+
+            for (uint32_t i = 0; i < n; i++) {
+                for (uint32_t j = 0; j < m; j++) {
+                    for (uint32_t k = 0; k < p; k++) {
+                        bool occupied = voxelGrid.isVoxelOccupied(i, j, k);
+                        sdfcs.value(i, j, k) = occupied ? -1. : 1.;
+                        if (occupied) {
+                            sdfcs.color(i, j, k) = voxelGrid.getColors().at(i).at(j).at(k);
+                        }
+                    }
+                }
+            }
+
+            return std::move(sdfcs);
         }
     };
 

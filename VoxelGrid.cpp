@@ -2,17 +2,19 @@
 #include <fstream>
 #include <iostream>
 
-VoxelGrid::VoxelGrid(const BoundingBox& box, int res)
-    : boundingBox(box), resolution(res) {
-    voxelSize = (boundingBox.maxCorner.x() - boundingBox.minCorner.x()) / resolution;
-    voxels.resize(resolution, std::vector<std::vector<bool>>(
-                                  resolution, std::vector<bool>(resolution, false)));
+VoxelGrid::VoxelGrid(const BoundingBox& box, int resX, int resY, int resZ)
+    : boundingBox(box), resolutionX(resX), resolutionY(resY), resolutionZ(resZ) {
+    voxelSizeX = (boundingBox.maxCorner.x() - boundingBox.minCorner.x()) / resolutionX;
+    voxelSizeY = (boundingBox.maxCorner.y() - boundingBox.minCorner.y()) / resolutionY;
+    voxelSizeZ = (boundingBox.maxCorner.z() - boundingBox.minCorner.z()) / resolutionZ;
+    voxels.resize(resolutionX, std::vector<std::vector<bool>>(
+                                  resolutionY, std::vector<bool>(resolutionZ, false)));
 }
 
 void VoxelGrid::initializeGridFromBoundingBox() {
-    for (int x = 0; x < resolution; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            for (int z = 0; z < resolution; ++z) {
+    for (int x = 0; x < resolutionX; ++x) {
+        for (int y = 0; y < resolutionY; ++y) {
+            for (int z = 0; z < resolutionZ; ++z) {
                 voxels[x][y][z] = true;
             }
         }
@@ -33,25 +35,26 @@ void VoxelGrid::setVoxelOccupied(int x, int y, int z, bool occupied) {
 }
 
 Eigen::Vector3i VoxelGrid::getVoxelIndex(const Eigen::Vector3f& point) const {
-    Eigen::Vector3i index;
-    index.x() = static_cast<int>((point.x() - boundingBox.minCorner.x()) / voxelSize);
-    index.y() = static_cast<int>((point.y() - boundingBox.minCorner.y()) / voxelSize);
-    index.z() = static_cast<int>((point.z() - boundingBox.minCorner.z()) / voxelSize);
-    return index;
+    return {
+        static_cast<int>((point.x() - boundingBox.minCorner.x()) / voxelSizeX),
+        static_cast<int>((point.y() - boundingBox.minCorner.y()) / voxelSizeY),
+        static_cast<int>((point.z() - boundingBox.minCorner.z()) / voxelSizeZ)
+    };
 }
 
+
 bool VoxelGrid::isValidIndex(int x, int y, int z) const {
-    return x >= 0 && x < resolution &&
-           y >= 0 && y < resolution &&
-           z >= 0 && z < resolution;
+    return x >= 0 && x < resolutionX &&
+           y >= 0 && y < resolutionY &&
+           z >= 0 && z < resolutionZ;
 }
 
 void VoxelGrid::carveVoxels(const std::vector<Eigen::Matrix3f>& intrinsics,
                             const std::vector<Eigen::Matrix4f>& extrinsics,
                             const std::vector<cv::Mat>& silhouettes) {
-    for (int x = 0; x < resolution; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            for (int z = 0; z < resolution; ++z) {
+    for (int x = 0; x < resolutionX; ++x) {
+        for (int y = 0; y < resolutionY; ++y) {
+            for (int z = 0; z < resolutionZ; ++z) {
                 if (!isVoxelOccupied(x, y, z)) continue;
 
                 Eigen::Vector3f voxelCenter = getVoxelCenter(x, y, z);
@@ -87,9 +90,9 @@ void VoxelGrid::exportToPLY(const std::string& filename) const {
     }
 
     int occupiedCount = 0;
-    for (int x = 0; x < resolution; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            for (int z = 0; z < resolution; ++z) {
+    for (int x = 0; x < resolutionX; ++x) {
+        for (int y = 0; y < resolutionY; ++y) {
+            for (int z = 0; z < resolutionZ; ++z) {
                 if (voxels[x][y][z]) {
                     ++occupiedCount;
                 }
@@ -105,12 +108,14 @@ void VoxelGrid::exportToPLY(const std::string& filename) const {
     file << "property float z\n";
     file << "end_header\n";
 
-    for (int x = 0; x < resolution; ++x) {
-        for (int y = 0; y < resolution; ++y) {
-            for (int z = 0; z < resolution; ++z) {
+    for (int x = 0; x < resolutionX; ++x) {
+        for (int y = 0; y < resolutionY; ++y) {
+            for (int z = 0; z < resolutionZ; ++z) {
                 if (voxels[x][y][z]) {
                     Eigen::Vector3f voxelCenter = boundingBox.minCorner +
-                        Eigen::Vector3f(x + 0.5f, y + 0.5f, z + 0.5f) * voxelSize;
+                        Eigen::Vector3f((x + 0.5f) * voxelSizeX,
+                                        (y + 0.5f) * voxelSizeY,
+                                        (z + 0.5f) * voxelSizeZ);
                     file << voxelCenter.x() << " " << voxelCenter.y() << " " << voxelCenter.z() << "\n";
                 }
             }
@@ -121,15 +126,13 @@ void VoxelGrid::exportToPLY(const std::string& filename) const {
     std::cout << "Voxel grid exported to " << filename << "\n";
 }
 
-
 Eigen::Vector3f VoxelGrid::getVoxelCenter(int x, int y, int z) const {
     if (!isValidIndex(x, y, z)) {
         throw std::out_of_range("Invalid voxel indices");
     }
-    Eigen::Vector3f voxelCenter;
-    voxelCenter.x() = boundingBox.minCorner.x() + (x + 0.5f) * voxelSize;
-    voxelCenter.y() = boundingBox.minCorner.y() + (y + 0.5f) * voxelSize;
-    voxelCenter.z() = boundingBox.minCorner.z() + (z + 0.5f) * voxelSize;
-    return voxelCenter;
+    return {
+        boundingBox.minCorner.x() + (x + 0.5f) * voxelSizeX,
+        boundingBox.minCorner.y() + (y + 0.5f) * voxelSizeY,
+        boundingBox.minCorner.z() + (z + 0.5f) * voxelSizeZ
+    };
 }
-

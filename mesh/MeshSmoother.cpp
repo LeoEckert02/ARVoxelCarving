@@ -8,12 +8,24 @@ double Mesh::MeshSmoother::getRho() const {
     return f_rho;
 }
 
+bool Mesh::MeshSmoother::nbPrecalculated() const {
+    return nbpc;
+}
+
 void Mesh::MeshSmoother::setKernel(Kernel::Kernel* kernel) {
     f_kernel = std::shared_ptr<Kernel::Kernel>(kernel);
 }
 
 void Mesh::MeshSmoother::setRho(double rho) {
     f_rho = rho;
+}
+
+void Mesh::MeshSmoother::clearNb() {
+    for (auto nbVec: f_neighbours) {
+        nbVec.clear();
+    }
+    f_neighbours.clear();
+    nbpc = false;
 }
 
 double Mesh::MeshSmoother::calculateDelta(Mesh::TriangleMesh& mesh, const std::vector<uint32_t>& neighbours, uint32_t id) const {
@@ -39,16 +51,24 @@ double Mesh::MeshSmoother::calculateDelta(Mesh::TriangleMesh& mesh, const std::v
 
 void Mesh::MeshSmoother::precalculateNeighbours(const Mesh::TriangleMesh &mesh) {
     f_neighbours.resize(mesh.getVertexCount());
-    // Vertex local id
-    uint32_t id = 0;
     for (
-        std::vector<MDS::Vertex>::const_iterator iter = mesh.getVertices().begin();
-        iter != mesh.getVertices().end();
+        std::unordered_map<uint32_t, MDS::Triangle>::const_iterator iter = mesh.getTriangles().begin();
+        iter != mesh.getTriangles().end();
         iter++
     ) {
-        f_neighbours.at(id) = mesh.getVertexNeighbours(iter->f_id);
-        id++;
+        f_neighbours.at(iter->second.f_v1Id).push_back(iter->second.f_v2Id);
+        f_neighbours.at(iter->second.f_v1Id).push_back(iter->second.f_v3Id);
+        f_neighbours.at(iter->second.f_v2Id).push_back(iter->second.f_v1Id);
+        f_neighbours.at(iter->second.f_v2Id).push_back(iter->second.f_v3Id);
+        f_neighbours.at(iter->second.f_v3Id).push_back(iter->second.f_v1Id);
+        f_neighbours.at(iter->second.f_v3Id).push_back(iter->second.f_v2Id);
     }
+    for (auto nbVec: f_neighbours) {
+        std::sort(nbVec.begin(), nbVec.end());
+        auto nEnd = std::unique(nbVec.begin(), nbVec.end());
+        nbVec.erase(nEnd, nbVec.end());
+    }
+    nbpc = true;
 }
 
 void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterations, bool wide) const {

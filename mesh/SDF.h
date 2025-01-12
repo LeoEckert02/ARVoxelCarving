@@ -134,31 +134,31 @@ namespace SDF {
             }
         }
 
-        static SDFCSample&& convertVoxelGridToSDFC(const VoxelGrid& voxelGrid) {
-            uint32_t n, m, p;
-            n = voxelGrid.getVoxels().size();
-            m = voxelGrid.getVoxels().at(0).size();
-            p = voxelGrid.getVoxels().at(0).at(0).size();
+        // static SDFCSample convertVoxelGridToSDFC(const VoxelGrid& voxelGrid) {
+        //     uint32_t n, m, p;
+        //     n = voxelGrid.getVoxels().size();
+        //     m = voxelGrid.getVoxels().at(0).size();
+        //     p = voxelGrid.getVoxels().at(0).at(0).size();
 
-            Vector3d origin = voxelGrid.getBoundingBox().minCorner;
-            Vector3d size = voxelGrid.getBoundingBox().maxCorner - origin;
+        //     Vector3d origin = voxelGrid.getBoundingBox().minCorner.cast<double>();
+        //     Vector3d size = (voxelGrid.getBoundingBox().maxCorner - voxelGrid.getBoundingBox().minCorner).cast<double>();
 
-            SDFCSample sdfcs(n, m, p, origin, size);
+        //     SDFCSample sdfcs(n, m, p, origin, size);
 
-            for (uint32_t i = 0; i < n; i++) {
-                for (uint32_t j = 0; j < m; j++) {
-                    for (uint32_t k = 0; k < p; k++) {
-                        bool occupied = voxelGrid.isVoxelOccupied(i, j, k);
-                        sdfcs.value(i, j, k) = occupied ? -1. : 1.;
-                        if (occupied) {
-                            sdfcs.color(i, j, k) = voxelGrid.getColors().at(i).at(j).at(k);
-                        }
-                    }
-                }
-            }
+        //     for (uint32_t i = 0; i < n; i++) {
+        //         for (uint32_t j = 0; j < m; j++) {
+        //             for (uint32_t k = 0; k < p; k++) {
+        //                 bool occupied = voxelGrid.isVoxelOccupied(i, j, k);
+        //                 sdfcs.value(i, j, k) = occupied ? -1. : 1.;
+        //                 if (occupied) {
+        //                     sdfcs.color(i, j, k) = voxelGrid.getColors().at(i).at(j).at(k);
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            return std::move(sdfcs);
-        }
+        //     return sdfcs;
+        // }
     };
 
 }

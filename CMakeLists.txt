@@ -21,6 +21,7 @@ set(HEADERS
     mesh/MeshLoader.h
     mesh/MeshSmoother.h
     mesh/SDF.h
+    mesh/PostProcInterface.h
 )
 
 set(SOURCES
@@ -28,6 +29,7 @@ set(SOURCES
     mesh/Mesh.cpp
     mesh/MeshLoader.cpp
     mesh/MeshSmoother.cpp
+    mesh/PostProcInterface.cpp
     main.cpp
 )
 

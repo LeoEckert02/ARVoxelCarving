@@ -12,6 +12,14 @@
 using namespace Eigen;
 
 namespace Kernel {
+    enum class KernelType {
+        AVG,
+        CAUCHY,
+        RCGAUSSIAN,
+        LAPLACE,
+        RAYLEIGH
+    };
+
     class Kernel {
     public:
         virtual double g(double delta) {
@@ -101,6 +109,8 @@ namespace Mesh {
         double f_rho;
         // Neighbour precalculated data
         std::vector<std::vector<uint32_t>> f_neighbours;
+        // Neighbour precalculated data flag
+        bool nbpc;
     public:
         
         #pragma region Constructors
@@ -108,7 +118,8 @@ namespace Mesh {
         MeshSmoother():
         f_kernel(nullptr),
         f_rho(1.),
-        f_neighbours()
+        f_neighbours(),
+        nbpc(false)
         {}
 
         MeshSmoother(
@@ -117,7 +128,8 @@ namespace Mesh {
         ):
         f_kernel(kernel),
         f_rho(rho),
-        f_neighbours()
+        f_neighbours(),
+        nbpc(false)
         {}
 
         #pragma endregion
@@ -128,11 +140,13 @@ namespace Mesh {
 
         double getRho() const;
 
-        double getAlpha() const;
+        bool nbPrecalculated() const;
 
         void setKernel(Kernel::Kernel* kernel);
 
         void setRho(double rho);
+
+        void clearNb();
 
         #pragma endregion
 

@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]) {
     // +++++++++SMOOTHING+++++++++
     // +++++++++++++++++++++++++++
     Mesh::MeshSmoother smoother(
-        new Kernel::CauchyKernel(1, 0.8),
+        new Kernel::LaplaceKernel(1., 0.8),
         2.
     );
     std::cout << "Precalculating neighbours..." << std::endl;
@@ -98,7 +98,7 @@ int main(int argc, char const *argv[]) {
     // generator.generateMCMesh(triMesh, sdfcs, 0.);
     // std::cout << "Done!" << std::endl;
 
-    std::string outPath("../data/features_sm_cauchy_10iter.off");
+    std::string outPath("../data/features_sm_laplace_10iter.off");
     
     std::cout << "Writing mesh..." << std::endl;
     MeshLoader::writeTriangleMeshOff(outPath, triMesh);

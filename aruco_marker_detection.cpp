@@ -53,7 +53,8 @@ int main() {
   if (useCalibration) {
     cv::FileStorage fs("camera_calib.yml", cv::FileStorage::READ);
     if (!fs.isOpened()) {
-      std::cerr << "Failed to open camera calibration file. Proceeding without calibration.\n";
+      std::cerr << "Failed to open camera calibration file. Proceeding without "
+                   "calibration.\n";
       useCalibration = false;
     } else {
       fs["cameraMatrix"] >> cameraMatrix;
@@ -83,26 +84,35 @@ int main() {
 
     std::vector<int> markerIds;
     std::vector<std::vector<cv::Point2f>> markerCorners, rejectedCandidates;
-    cv::aruco::DetectorParameters detectorParams = cv::aruco::DetectorParameters();
-    cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_50);
+    cv::aruco::DetectorParameters detectorParams =
+        cv::aruco::DetectorParameters();
+    cv::aruco::Dictionary dictionary =
+        cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_50);
     cv::aruco::ArucoDetector detector(dictionary, detectorParams);
     detector.detectMarkers(frame, markerCorners, markerIds, rejectedCandidates);
 
     if (!markerIds.empty()) {
       if (useCalibration) {
         cv::Mat objPoints(4, 1, CV_32FC3);
-        objPoints.ptr<cv::Vec3f>(0)[0] = cv::Vec3f(-markerLength / 2.f, markerLength / 2.f, 0);
-        objPoints.ptr<cv::Vec3f>(0)[1] = cv::Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
-        objPoints.ptr<cv::Vec3f>(0)[2] = cv::Vec3f(markerLength / 2.f, -markerLength / 2.f, 0);
-        objPoints.ptr<cv::Vec3f>(0)[3] = cv::Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
+        objPoints.ptr<cv::Vec3f>(0)[0] =
+            cv::Vec3f(-markerLength / 2.f, markerLength / 2.f, 0);
+        objPoints.ptr<cv::Vec3f>(0)[1] =
+            cv::Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
+        objPoints.ptr<cv::Vec3f>(0)[2] =
+            cv::Vec3f(markerLength / 2.f, -markerLength / 2.f, 0);
+        objPoints.ptr<cv::Vec3f>(0)[3] =
+            cv::Vec3f(-markerLength / 2.f, -markerLength / 2.f, 0);
 
         size_t nMarkers = markerCorners.size();
         std::vector<cv::Vec3f> rvecs(nMarkers), tvecs(nMarkers);
         for (size_t i = 0; i < nMarkers; i++) {
-          cv::solvePnP(objPoints, markerCorners.at(i), cameraMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
+          cv::solvePnP(objPoints, markerCorners.at(i), cameraMatrix, distCoeffs,
+                       rvecs.at(i), tvecs.at(i));
         }
 
         std::vector<cv::Mat> R_candidates, t_candidates;
+        bool initial_marker_set = false;
+        cv::Mat initial_R_m2c, initial_t_m2c;
         for (size_t i = 0; i < markerIds.size(); ++i) {
           int markerId = markerIds[i];
 
@@ -111,22 +121,36 @@ int main() {
           t_m2c = cv::Mat(tvecs[i]).clone();
 
           if (!initial_frame_set) {
-            initial_R_c2w = cv::Mat::eye(3, 3, CV_64F);
-            initial_t_c2w = cv::Mat::zeros(3, 1, CV_64F);
-            R_candidates.push_back(initial_R_c2w);
-            t_candidates.push_back(initial_t_c2w);
+            if (!initial_marker_set) {
+              // Store the first marker's transform
+              initial_R_m2c = R_m2c.clone();
+              initial_t_m2c = t_m2c.clone();
+              initial_marker_set = true;
 
-            R_m2c.convertTo(R_m2c, CV_64F);
-            t_m2c.convertTo(t_m2c, CV_64F);
+              // Set first marker as origin (0,0,0) with upward rotation
+              cv::Mat R_m2w = cv::Mat::eye(3, 3, CV_64F);
+              cv::Mat t_m2w = cv::Mat::zeros(3, 1, CV_64F);
 
-            if (t_m2c.rows == 1 && t_m2c.cols == 3) {
-              t_m2c = t_m2c.t();
+              marker_to_world[markerId] = {R_m2w, t_m2w};
+
+              // Calculate camera pose relative to world origin
+              cv::Mat R_c2w = R_m2c.t();
+              cv::Mat t_c2w = -R_c2w * t_m2c;
+
+              R_candidates.push_back(R_c2w);
+              t_candidates.push_back(t_c2w);
+            } else {
+              cv::Mat R_relative = initial_R_m2c.t() * R_m2c;
+              cv::Mat t_relative = initial_R_m2c.t() * (t_m2c - initial_t_m2c);
+
+              cv::Mat R_c2w = initial_R_m2c.t();
+              cv::Mat t_c2w = -initial_R_m2c * initial_t_m2c;
+
+              marker_to_world[markerId] = {R_relative, t_relative};
+              std::cout << "Marker Id: " << markerId << std::endl;
+              std::cout << "R_m2w: " << R_relative << std::endl;
+              std::cout << "t_m2w: " << t_relative << std::endl;
             }
-
-            cv::Mat R_m2w = initial_R_c2w * R_m2c.t();
-            cv::Mat t_m2w = initial_t_c2w + (-R_m2w * t_m2c);
-
-            marker_to_world[markerId] = {R_m2w, t_m2w};
           } else {
             if (marker_to_world.find(markerId) == marker_to_world.end())
               continue;
@@ -155,7 +179,8 @@ int main() {
         cv::Mat outputImage = frame.clone();
         for (size_t i = 0; i < markerIds.size(); i++) {
           cv::aruco::drawDetectedMarkers(outputImage, markerCorners, markerIds);
-          cv::drawFrameAxes(outputImage, cameraMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 5);
+          cv::drawFrameAxes(outputImage, cameraMatrix, distCoeffs, rvecs[i],
+                            tvecs[i], markerLength * 1.5f, 5);
         }
 
         cv::imshow("ArUco Detection", outputImage);

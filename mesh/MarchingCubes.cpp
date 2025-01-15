@@ -580,10 +580,10 @@ void MarchingCubes::MarchingCubesMeshGenerator::generateMCMesh(Mesh::TriangleMes
     // mesh.clear();
 
     // Prepare edge occupancy temporary field
-    std::cout << "Preparing edge occupancy..." << std::endl;
+    std::cout << "\t[MPP] Preparing edge occupancy..." << std::endl;
     prepareEdgeOccupancy(sdf.f_n, sdf.f_m, sdf.f_p);
 
-    std::cout << "Handling cells..." << std::endl;
+    std::cout << "\t[MPP] Handling cells..." << std::endl;
     // Iterate over all cells
     for (unsigned i = 0; i < sdf.f_n - 1; i++) {
         for (unsigned j = 0; j < sdf.f_m - 1; j++) {

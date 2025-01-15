@@ -116,7 +116,7 @@ namespace Mesh {
         #pragma region Constructors
 
         MeshSmoother():
-        f_kernel(nullptr),
+        f_kernel(new Kernel::Kernel()),
         f_rho(1.),
         f_neighbours(),
         nbpc(false)

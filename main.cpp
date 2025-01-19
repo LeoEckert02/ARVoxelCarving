@@ -6,8 +6,16 @@
 
 int main(int argc, char const *argv[]) {
     srand (static_cast <unsigned> (time(0)));
+
+
+
+
     PostProcInterface interface;
     interface.mainMenu();
+
+
+
+
     // Mesh::TriangleMesh triMesh;
     // std::string inPath("../data/features_normal_noise.off");
 
@@ -84,11 +92,17 @@ int main(int argc, char const *argv[]) {
     //     //     double z = point.z();
     //     //     return sin(x) * sin(y) - z;
     //     // }
+    //     // [](Vector3d point) {
+    //     //     double x = point.x();
+    //     //     double y = point.y();
+    //     //     double z = point.z();
+    //     //     return z - std::max(1.8 * sin(10 * x * x) * sin(10 * y * y) / (1 + 2 * abs(x) * abs(y)), 0.);
+    //     // }
     //     [](Vector3d point) {
     //         double x = point.x();
     //         double y = point.y();
     //         double z = point.z();
-    //         return z - std::max(1.8 * sin(10 * x * x) * sin(10 * y * y) / (1 + 2 * abs(x) * abs(y)), 0.);
+    //         return (x * x + y * y + z * z - 1) <= 0 ? -1 : 1;
     //     }
     // );
     // std::cout << "Done!" << std::endl;
@@ -97,7 +111,7 @@ int main(int argc, char const *argv[]) {
     // generator.generateMCMesh(triMesh, sdfcs, 0.);
     // std::cout << "Done!" << std::endl;
 
-    // std::string outPath("../data/features_sm_laplace_10iter.off");
+    // std::string outPath("../data/TSDF_Sphere.off");
     
     // std::cout << "Writing mesh..." << std::endl;
     // MeshLoader::writeTriangleMeshOff(outPath, triMesh);

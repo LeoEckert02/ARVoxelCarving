@@ -6,6 +6,25 @@
 #include <unordered_map>
 #include <vector>
 
+// convert opencv rotation and translation to eigen matrix
+Eigen::Matrix4d cvToEigenTransform(const cv::Mat& R, const cv::Mat& t) {
+    Eigen::Matrix4d transform = Eigen::Matrix4d::Identity();
+    
+    // Put rotation into matrix
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            transform(i,j) = R.at<double>(i,j);
+        }
+    }
+    
+    // Put translation into matrix
+    transform(0,3) = t.at<double>(0);
+    transform(1,3) = t.at<double>(1);
+    transform(2,3) = t.at<double>(2);
+    
+    return transform;
+}
+
 // Calculate camera pose from marker pose
 void calculateCameraPose(const cv::Mat &R_m2c, const cv::Mat &t_m2c,
                          const cv::Mat &R_m2w, const cv::Mat &t_m2w,
@@ -191,14 +210,17 @@ int main() {
 
   cv::destroyAllWindows();
 
-  std::cout << "Final Camera Positions:" << std::endl;
+  std::vector<Eigen::Matrix4d> camera_poses;
+  camera_poses.reserve(camera_positions.size());
+
+  // convert all opeencv rotation and translation to eigen matrix
   for (size_t i = 0; i < camera_positions.size(); ++i) {
-    std::cout << "[" << i << "]: " << camera_positions[i].t() << std::endl;
+    camera_poses.push_back(cvToEigenTransform(camera_rotations[i], camera_positions[i]));
   }
 
-  std::cout << "Final Camera Rotations:" << std::endl;
-  for (size_t i = 0; i < camera_rotations.size(); ++i) {
-    std::cout << "[" << i << "]: " << camera_rotations[i] << std::endl;
+  std::cout << "Final Camera Poses:" << std::endl;
+  for (size_t i = 0; i < camera_positions.size(); ++i) {
+    std::cout << "[" << i << "]: " << camera_poses[i] << std::endl;
   }
 
   return 0;

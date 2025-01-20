@@ -1,0 +1,3 @@
+/config/workspace/Exercises/finalProject/ARVoxelCarving/build/CMakeFiles/ARVoxelCarving.dir
+/config/workspace/Exercises/finalProject/ARVoxelCarving/build/CMakeFiles/edit_cache.dir
+/config/workspace/Exercises/finalProject/ARVoxelCarving/build/CMakeFiles/rebuild_cache.dir

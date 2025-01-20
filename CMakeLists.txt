@@ -1,27 +1,53 @@
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE TYPE INTERNAL FORCE)
+
+# Project name
 project(ARVoxelCarving)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Options
+set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Libs CACHE PATH "Path to lib folder")
+set(Eigen3_DIR ${LIBRARY_DIR}/Eigen/share/eigen3/cmake CACHE PATH "Path to installed Eigen")
+# Set C++ flags
+set(CMAKE_CXX_STANDARD 14)
 
+find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 
-set(LIBHARU_INCLUDE_DIR "/usr/local/Cellar/libharu/2.4.4/include")
-set(LIBHARU_LIBRARY "/usr/local/Cellar/libharu/2.4.4/lib/libhpdf.2.4.4.dylib")
+# Define header and source files
+set(HEADERS
+    mesh/MarchingCubes.h
+    mesh/Mesh.h
+    mesh/MeshDataStructures.h
+    mesh/MeshLoader.h
+    mesh/MeshSmoother.h
+    mesh/SDF.h
+    mesh/PostProcInterface.h
+    BoundingBox.h
+    VoxelGrid.h
+    VoxelCarveTest.h
+)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(${LIBHARU_INCLUDE_DIR})
+set(SOURCES
+    mesh/MarchingCubes.cpp
+    mesh/Mesh.cpp
+    mesh/MeshLoader.cpp
+    mesh/MeshSmoother.cpp
+    mesh/PostProcInterface.cpp
+    BoundingBox.cpp
+    VoxelGrid.cpp
+    main.cpp
+)
 
-add_executable(aruco_marker_generation aruco_marker_generation.cpp)
-target_link_libraries(aruco_marker_generation ${OpenCV_LIBS})
-target_link_libraries(aruco_marker_generation ${LIBHARU_LIBRARY})
+# Add executable
+add_executable(ARVoxelCarving ${HEADERS} ${SOURCES})
 
-add_executable(aruco_marker_detection aruco_marker_detection.cpp)
-target_link_libraries(aruco_marker_detection ${OpenCV_LIBS})
+# Include directories
+target_include_directories(ARVoxelCarving PUBLIC ${EIGEN3_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
 
-add_executable(camera_calibration camera_calibration.cpp)
-target_link_libraries(camera_calibration ${OpenCV_LIBS})
+# Link libraries
+target_link_libraries(ARVoxelCarving Eigen3::Eigen ${OpenCV_LIBS})
 
-# specify the path to libharu library (if not automatically found)
-link_directories("/usr/local/Cellar/libharu/2.4.4/lib")
+# Visual Studio properties
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ARVoxelCarving)
+set_property(TARGET ARVoxelCarving PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)

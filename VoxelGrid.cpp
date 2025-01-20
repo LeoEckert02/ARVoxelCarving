@@ -136,3 +136,31 @@ Eigen::Vector3f VoxelGrid::getVoxelCenter(int x, int y, int z) const {
         boundingBox.minCorner.z() + (z + 0.5f) * voxelSizeZ
     };
 }
+
+/*Eigen::MatrixXf cvToEigen(const cv::Mat& cvMat) {
+    if (cvMat.empty()) {
+        throw std::invalid_argument("Input cv::Mat is empty.");
+    }
+
+    if (cvMat.type() != CV_32F && cvMat.type() != CV_64F) {
+        throw std::invalid_argument("Only CV_32F or CV_64F type matrices can be converted.");
+    }
+
+    Eigen::MatrixXf eigenMat(cvMat.rows, cvMat.cols);
+
+    for (int row = 0; row < cvMat.rows; ++row) {
+        for (int col = 0; col < cvMat.cols; ++col) {
+            eigenMat(row, col) = static_cast<float>(cvMat.at<double>(row, col));
+        }
+    }
+
+    return eigenMat;
+}*/
+
+std::vector<std::vector<std::vector<bool>>> VoxelGrid::getVoxels() const{
+    return voxels;
+}
+
+BoundingBox VoxelGrid::getBoundingBox() const{
+    return boundingBox;
+}

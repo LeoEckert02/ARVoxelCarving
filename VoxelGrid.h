@@ -19,6 +19,9 @@ public:
                      const std::vector<Eigen::Matrix4f>& extrinsics,
                      const std::vector<cv::Mat>& silhouettes);
     void exportToPLY(const std::string& filename) const;
+    Eigen::MatrixXf cvToEigen(const cv::Mat& cvMat);
+    std::vector<std::vector<std::vector<bool>>> getVoxels() const;
+    BoundingBox getBoundingBox() const;
 
 private:
     BoundingBox boundingBox;

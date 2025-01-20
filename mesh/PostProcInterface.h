@@ -5,11 +5,12 @@
 #include "MeshSmoother.h"
 #include "SDF.h"
 #include "MarchingCubes.h"
+#include "../VoxelGrid.h"
 
 class PostProcInterface {
     Mesh::TriangleMesh f_mesh;
     Mesh::MeshSmoother f_smoother;
-    // SDF::VoxelGrid* f_voxelGrid;
+    VoxelGrid* f_voxelGrid;
 
 public:
     PostProcInterface():

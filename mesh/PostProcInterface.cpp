@@ -82,7 +82,7 @@ void PostProcInterface::generateMCMeshVG(double level) {
     }
     f_smoother.clearNb();
     MarchingCubes::MarchingCubesMeshGenerator generator;
-    generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(f_voxelGrid), level);
+    generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(*f_voxelGrid), level);
     return;
 }
 

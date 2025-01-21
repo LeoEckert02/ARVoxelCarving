@@ -1,8 +1,6 @@
 import os
 import cv2
 import numpy as np
-import torch
-from torchvision.utils import draw_bounding_boxes
 
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -93,7 +91,7 @@ def load_image_click(image):
     return selected_point[0] if selected_point else None
 
 
-def show_segmented_image(image, masks, scores):
+def save_segmented_image(image, masks, scores, output_path, show):
     sorted_ind = np.argsort(scores)[::-1]
     masks = masks[sorted_ind]
     scores = scores[sorted_ind]
@@ -103,7 +101,9 @@ def show_segmented_image(image, masks, scores):
     rgba_image = np.zeros((h, w, 4), dtype=np.uint8)
     rgba_image[:, :, :3] = image
     rgba_image[:, :, 3] = (masks[0] * 255).astype(np.uint8)
-    Image.fromarray(rgba_image, "RGBA").show()
+    Image.fromarray(rgba_image, "RGBA").save(output_path)
+    if show:
+        Image.fromarray(rgba_image, "RGBA").show()
     print(scores[0])
 
 
@@ -172,16 +172,7 @@ class SAM2Segmentation:
                 point_coords_batch=point_coords_batch,
                 point_labels_batch=labels_batch) if self.needs_input else self.predictor.predict_batch()
 
-    def show_predicted_images(self):
+    def save_segmented_images(self, output_path, show=False):
         for i, (image, masks, scores) in enumerate(zip(self.images, self.all_masked_images, self.all_scores)):
             print(f"Image {i + 1}/{len(self.images)}")
-            show_segmented_image(image, masks, scores)
-
-
-def save_segmented_image(image, mask, output_path):
-    """Save the segmented image with a mask applied."""
-    h, w, _ = image.shape
-    rgba_image = np.zeros((h, w, 4), dtype=np.uint8)
-    rgba_image[:, :, :3] = image
-    rgba_image[:, :, 3] = mask * 255
-    Image.fromarray(rgba_image, "RGBA").save(output_path)
+            save_segmented_image(image, masks, scores, output_path + f"segmented_image_{i}.png",show)

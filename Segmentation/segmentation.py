@@ -96,14 +96,22 @@ def save_segmented_image(image, masks, scores, output_path, show):
     masks = masks[sorted_ind]
     scores = scores[sorted_ind]
 
-    # for i in range(len(masks)):
+    best_mask = masks[0]
+
     h, w, _ = image.shape
     rgba_image = np.zeros((h, w, 4), dtype=np.uint8)
+
     rgba_image[:, :, :3] = image
-    rgba_image[:, :, 3] = (masks[0] * 255).astype(np.uint8)
-    Image.fromarray(rgba_image, "RGBA").save(output_path)
+    rgba_image[:, :, 3] = (best_mask * 255).astype(np.uint8)
+
+    boolean_mask = best_mask > 0.5
+
+    masked_image = np.zeros_like(rgba_image)
+    masked_image[boolean_mask] = rgba_image[boolean_mask]
+
+    Image.fromarray(masked_image, "RGBA").save(output_path)
     if show:
-        Image.fromarray(rgba_image, "RGBA").show()
+        Image.fromarray(masked_image, "RGBA").show()
     print(scores[0])
 
 
@@ -175,4 +183,4 @@ class SAM2Segmentation:
     def save_segmented_images(self, output_path, show=False):
         for i, (image, masks, scores) in enumerate(zip(self.images, self.all_masked_images, self.all_scores)):
             print(f"Image {i + 1}/{len(self.images)}")
-            save_segmented_image(image, masks, scores, output_path + f"segmented_image_{i}.png",show)
+            save_segmented_image(image, masks, scores, output_path + f"segmented_image_{i}.png", show)

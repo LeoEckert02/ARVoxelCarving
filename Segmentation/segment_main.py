@@ -1,6 +1,6 @@
 ﻿from segmentation import SAM2Segmentation
 
-needs_input = False
+needs_input = True
 needs_bounding_box = True
 show_results = False
 

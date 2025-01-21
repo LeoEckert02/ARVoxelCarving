@@ -55,12 +55,21 @@ std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages() {
             cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_GRAYSCALE);
             if (!img.empty()) {
                 std::cout << entry.path() << std::endl;
+                std::string windowName = "Image: " + entry.path().filename().string();
+                cv::imshow(windowName, img);
+
                 images.push_back(img);
             } else {
                 std::cerr << "Warning: Failed to load image " << entry.path() << std::endl;
             }
-            cv::waitKey(0);
         }
     }
+
+    if (!images.empty()) {
+        std::cout << "Press any key to close all windows..." << std::endl;
+        cv::waitKey(0); // Wait for a key press
+        cv::destroyAllWindows(); // Close all OpenCV windows
+    }
+
     return images;
 }

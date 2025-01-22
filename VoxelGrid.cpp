@@ -60,29 +60,29 @@ void VoxelGrid::carveVoxels(const std::vector<Eigen::Matrix3f>& intrinsics,
                 Eigen::Vector3f voxelCenter = getVoxelCenter(x, y, z);
                 bool insideAllSilhouettes = true;
                 
-
                 for (size_t cam = 0; cam < intrinsics.size(); ++cam) {
                     Eigen::Vector4f voxelHomogeneous(voxelCenter.x(), voxelCenter.y(), voxelCenter.z(), 1.0f);
                     Eigen::Vector4f voxelCameraSpace = extrinsics[cam] * voxelHomogeneous;
                     Eigen::Vector3f projected = intrinsics[cam] * voxelCameraSpace.head<3>();
+                    
                     int u = static_cast<int>(projected.x() / projected.z());
                     int v = static_cast<int>(projected.y() / projected.z());
 
-                    /*if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows) {
+                    /*
+                    if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows) {
                         insideAllSilhouettes = false;
                         break;
                     }
-
+                    
                     cv::Vec4b pixel = silhouettes[cam].at<cv::Vec4b>(v, u);
-                    std::cout << pixel << std::endl;
+                    
                     if(pixel[3] == 0)
                     {
                         insideAllSilhouettes = false;
                         break;
                     }*/
 
-                    if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows ||
-                        silhouettes[cam].at<uchar>(v, u) == 255) {
+                    if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows || static_cast<int>(silhouettes[cam].at<uchar>(v, u) == 0)) {
                         insideAllSilhouettes = false;
                         break;
                     }

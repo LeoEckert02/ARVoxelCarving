@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <Eigen/Dense>
+#include <algorithm>
 
 // Convert OpenCV rotation and translation to Eigen matrix (float)
 Eigen::Matrix4f cvToEigenTransform(const cv::Mat& R, const cv::Mat& t) {
@@ -90,6 +91,8 @@ std::vector<Eigen::Matrix4f> calculatePoses() {
         imagePaths.push_back(entry.path().string());
     }
 
+    std::sort(imagePaths.begin(), imagePaths.end());
+
     const float markerLength = 0.03f; // Measured from printed PDF (3cm x 3cm)
     std::vector<cv::Mat> camera_positions, camera_rotations;
 
@@ -97,6 +100,7 @@ std::vector<Eigen::Matrix4f> calculatePoses() {
 
     for (const std::string& imagePath : imagePaths) {
         cv::Mat frame = cv::imread(imagePath);
+        std::cout << "Doing extrinsincs calculation" << imagePath << std::endl;
 
         if (frame.empty()) {
             continue;

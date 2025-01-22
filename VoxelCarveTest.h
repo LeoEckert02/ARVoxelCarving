@@ -11,15 +11,15 @@ class VoxelCarveTest {
 private:
     Eigen::Vector3f minCorner;
     Eigen::Vector3f maxCorner;
-    int resolutionX = 50;
-    int resolutionY = 50;
-    int resolutionZ = 50;
+    int resolutionX = 100;
+    int resolutionY = 100;
+    int resolutionZ = 100;
     std::vector<cv::Mat> silhouettes;
     bool performCalibration;
 
 public:
     VoxelCarveTest(std::vector<cv::Mat> silhouettes, bool performCalibration = false)
-        : minCorner(-1.0f, -1.0f, -1.0f), maxCorner(1.0f, 1.0f, 1.0f), silhouettes(silhouettes), performCalibration(performCalibration) {
+        : minCorner(-0.2f, -0.2f, -0.2f), maxCorner(0.2f, 0.2f, 0.2f), silhouettes(silhouettes), performCalibration(performCalibration) {
             std::cout << "Started to Voxel Carving!\n";
         }
 
@@ -60,21 +60,6 @@ public:
             fs.release();
         }
 
-        /*for (int i = 0; i < 4; ++i) {
-            cv::Mat silhouette = cv::Mat::zeros(imageHeight, imageWidth, CV_8UC1);
-            int centerX = imageWidth / 2;
-            int centerY = imageHeight / 2;
-            int radius = imageWidth / 4;
-            cv::circle(silhouette, cv::Point(centerX, centerY), radius, cv::Scalar(255), -1);
-
-            std::string filename = "synthetic_silhouette_" + std::to_string(i) + ".png";
-            if (!cv::imwrite(filename, silhouette)) {
-                std::cerr << "Failed to write silhouette file: " << filename << std::endl;
-                continue;
-            }
-            silhouettes.push_back(silhouette);
-        }*/
-
         Eigen::Matrix3f intrinsics;
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
@@ -82,13 +67,13 @@ public:
             }
         }
         
-        //std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
+        std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
 
         std::vector<Eigen::Matrix4f> extrinsics = calculatePoses();
 
-        //std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
+        std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
         for (const auto& extrinsic : extrinsics) {
-            //std::cout << extrinsic << std::endl;
+            std::cout << extrinsic << std::endl;
         }
 
         voxelGrid.initializeGridFromBoundingBox();

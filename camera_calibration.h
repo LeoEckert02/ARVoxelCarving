@@ -10,6 +10,7 @@ bool calibrateCamera(const std::string &folderPath,
                                int checkerboardHeight,
                                cv::Mat &cameraMatrix,
                                cv::Mat &distCoeffs,
-                               double &reprojectionError);
+                               double &reprojectionError,
+                               bool showImage = false);
 
 #endif // CAMERA_CALIBRATION_H

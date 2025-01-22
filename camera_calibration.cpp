@@ -11,7 +11,8 @@ bool calibrateCamera(const std::string &folderPath,
                                int checkerboardHeight,
                                cv::Mat &cameraMatrix,
                                cv::Mat &distCoeffs,
-                               double &reprojectionError) {
+                               double &reprojectionError,
+                               bool showImage) {
     // Checkerboard dimensions
     int CHECKERBOARD[2]{checkerboardWidth, checkerboardHeight};
 
@@ -70,7 +71,10 @@ bool calibrateCamera(const std::string &folderPath,
             // Draw and display the corners
             cv::drawChessboardCorners(
                 frame, cv::Size(CHECKERBOARD[0], CHECKERBOARD[1]), corners, found);
-            cv::imshow("Chessboard Detection", frame);
+            
+            if(showImage){
+                cv::imshow("Chessboard Detection", frame);
+            }
             cv::waitKey(1000); // Pause to visualize each detection
         } else {
             std::cout << "Chessboard not found in " << imagePath << std::endl;

@@ -4,10 +4,8 @@
 #include "sam_segmentation_generation.h"
 
 int main() {
-    std::cout<<"Silhouette creation\n";
     auto silhouettes = SamSegmentationGenerator::grabSegmentedImages();
-    std::cout<<"Created voxel carve test\n";
-    VoxelCarveTest* voxelCarveTest = new VoxelCarveTest(silhouettes, false);
+    VoxelCarveTest* voxelCarveTest = new VoxelCarveTest(silhouettes, true);
     VoxelGrid carved_voxel_grid = voxelCarveTest->Test();
 
     PostProcInterface postProcInterface;

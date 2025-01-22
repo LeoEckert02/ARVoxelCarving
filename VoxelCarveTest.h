@@ -11,15 +11,15 @@ class VoxelCarveTest {
 private:
     Eigen::Vector3f minCorner;
     Eigen::Vector3f maxCorner;
-    int resolutionX = 100;
-    int resolutionY = 100;
-    int resolutionZ = 100;
+    int resolutionX = 150;
+    int resolutionY = 150;
+    int resolutionZ = 150;
     std::vector<cv::Mat> silhouettes;
     bool performCalibration;
 
 public:
     VoxelCarveTest(std::vector<cv::Mat> silhouettes, bool performCalibration = false)
-        : minCorner(-0.2f, -0.2f, -0.2f), maxCorner(0.2f, 0.2f, 0.2f), silhouettes(silhouettes), performCalibration(performCalibration) {
+        : minCorner(-0.25f, -0.25f, -0.25f), maxCorner(0.25f, 0.25f, 0.25f), silhouettes(silhouettes), performCalibration(performCalibration) {
             std::cout << "Started to Voxel Carving!\n";
         }
 
@@ -70,6 +70,17 @@ public:
         std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
 
         std::vector<Eigen::Matrix4f> extrinsics = calculatePoses();
+
+        for (auto &extr: extrinsics) {
+            Eigen::Matrix3f R = extr.block<3, 3>(0, 0);
+            Eigen::Vector3f C = extr.block<3, 1>(0, 3);
+            Eigen::Matrix3f R_inv = R.transpose();
+            Eigen::Vector3f t = -R_inv * C;
+            Eigen::Matrix4f E = Eigen::Matrix4f::Identity();
+            E.block<3, 3>(0, 0) = R_inv;
+            E.block<3, 1>(0, 3) = t;
+            extr = E;
+        }
 
         std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
         for (const auto& extrinsic : extrinsics) {

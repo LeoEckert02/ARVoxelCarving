@@ -10,5 +10,5 @@ namespace fs = boost::filesystem;
 
 class SamSegmentationGenerator {
 public:
-    static std::vector<cv::Mat> grabSegmentedImages();
+    static std::vector<cv::Mat> grabSegmentedImages(bool showImages = false);
 };

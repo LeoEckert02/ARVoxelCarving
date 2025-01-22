@@ -46,17 +46,20 @@
 // }
 
 
-std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages() {
+std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages(bool showImages) {
     std::string path = fs::current_path().parent_path().string() + "/resources/segmented_images";
 
     std::vector<cv::Mat> images;
     for (const auto &entry: fs::directory_iterator(path)) {
         if (entry.path().extension() == ".png" || entry.path().extension() == ".jpg") {
-            cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_GRAYSCALE);
+            cv::Mat img = cv::imread(entry.path().string(), cv::IMREAD_UNCHANGED);
             if (!img.empty()) {
                 std::cout << entry.path() << std::endl;
                 std::string windowName = "Image: " + entry.path().filename().string();
-                cv::imshow(windowName, img);
+                if(showImages)
+                {
+                    cv::imshow(windowName, img);
+                }
 
                 images.push_back(img);
             } else {
@@ -65,7 +68,7 @@ std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages() {
         }
     }
 
-    if (!images.empty()) {
+    if (!images.empty() && showImages) {
         std::cout << "Press any key to close all windows..." << std::endl;
         cv::waitKey(0); // Wait for a key press
         cv::destroyAllWindows(); // Close all OpenCV windows

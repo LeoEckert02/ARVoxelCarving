@@ -4,13 +4,15 @@
 #include "sam_segmentation_generation.h"
 
 int main() {
-    VoxelCarveTest voxelCarveTest;
-    VoxelGrid carved_voxel_grid = voxelCarveTest.Test();
-    auto silluets = SamSegmentationGenerator::grabSegmentedImages();
+    std::cout<<"Silhouette creation\n";
+    auto silhouettes = SamSegmentationGenerator::grabSegmentedImages();
+    std::cout<<"Created voxel carve test\n";
+    VoxelCarveTest* voxelCarveTest = new VoxelCarveTest(silhouettes, false);
+    VoxelGrid carved_voxel_grid = voxelCarveTest->Test();
 
     PostProcInterface postProcInterface;
     postProcInterface.setVoxelGrid(&carved_voxel_grid);
     postProcInterface.generateMCMeshVG(0.);
     postProcInterface.smoothenMesh(1., 5);
-    postProcInterface.writeMesh("result/output_mesh.off");
+    postProcInterface.writeMesh("output_mesh.off");
 }

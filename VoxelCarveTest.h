@@ -11,23 +11,25 @@ class VoxelCarveTest {
 private:
     Eigen::Vector3f minCorner;
     Eigen::Vector3f maxCorner;
-    int resolutionX = 300;
-    int resolutionY = 300;
-    int resolutionZ = 300;
-    int imageWidth = 500;
-    int imageHeight = 500;
+    int resolutionX = 50;
+    int resolutionY = 50;
+    int resolutionZ = 50;
+    std::vector<cv::Mat> silhouettes;
+    bool performCalibration;
 
 public:
-    VoxelCarveTest()
-        : minCorner(-1.0f, -1.0f, -1.0f), maxCorner(1.0f, 1.0f, 1.0f) {}
+    VoxelCarveTest(std::vector<cv::Mat> silhouettes, bool performCalibration = false)
+        : minCorner(-1.0f, -1.0f, -1.0f), maxCorner(1.0f, 1.0f, 1.0f), silhouettes(silhouettes), performCalibration(performCalibration) {
+            std::cout << "Started to Voxel Carving!\n";
+        }
 
     VoxelGrid Test() {
         BoundingBox boundingBox(minCorner, maxCorner);
         VoxelGrid voxelGrid(boundingBox, resolutionX, resolutionY, resolutionZ);
-        std::vector<cv::Mat> silhouettes;
-
-        bool performCalibration = false;
+        
         cv::Mat cameraMatrix, distCoeffs;
+
+        std::cout << "PerformCalibration: "<< performCalibration<<std::endl;
 
         if (performCalibration) {
             double reprojectionError;
@@ -58,7 +60,7 @@ public:
             fs.release();
         }
 
-        for (int i = 0; i < 4; ++i) {
+        /*for (int i = 0; i < 4; ++i) {
             cv::Mat silhouette = cv::Mat::zeros(imageHeight, imageWidth, CV_8UC1);
             int centerX = imageWidth / 2;
             int centerY = imageHeight / 2;
@@ -71,7 +73,7 @@ public:
                 continue;
             }
             silhouettes.push_back(silhouette);
-        }
+        }*/
 
         Eigen::Matrix3f intrinsics;
         for (int i = 0; i < 3; ++i) {
@@ -80,13 +82,13 @@ public:
             }
         }
         
-        std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
+        //std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
 
         std::vector<Eigen::Matrix4f> extrinsics = calculatePoses();
 
-        std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
+        //std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
         for (const auto& extrinsic : extrinsics) {
-            std::cout << extrinsic << std::endl;
+            //std::cout << extrinsic << std::endl;
         }
 
         voxelGrid.initializeGridFromBoundingBox();

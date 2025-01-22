@@ -4,6 +4,8 @@
 #include <opencv2/opencv.hpp>
 #include "VoxelGrid.h"
 #include "BoundingBox.h"
+#include "camera_calibration.h"
+#include "aruco_marker_detection.h"
 
 class VoxelCarveTest {
 private:
@@ -24,6 +26,38 @@ public:
         VoxelGrid voxelGrid(boundingBox, resolutionX, resolutionY, resolutionZ);
         std::vector<cv::Mat> silhouettes;
 
+        bool performCalibration = false;
+        cv::Mat cameraMatrix, distCoeffs;
+
+        if (performCalibration) {
+            double reprojectionError;
+
+            std::string calibrationFolderPath = "../resources/camera_calibration/images/";
+            int checkerboardWidth = 10;
+            int checkerboardHeight = 7;
+
+            if (calibrateCamera(calibrationFolderPath, checkerboardWidth, checkerboardHeight,
+                                        cameraMatrix, distCoeffs, reprojectionError)) {
+                std::cout << "Calibration successful!" << std::endl;
+            } else {
+                std::cerr << "Calibration failed!" << std::endl;
+                return voxelGrid;
+            }
+        } else {
+            // Fetch calibration data from saved file
+            cv::FileStorage fs("camera_calib.yml", cv::FileStorage::READ);
+
+            if (!fs.isOpened()) {
+                std::cerr << "Error: Could not open 'camera_calib.yml'. Please perform calibration first."
+                        << std::endl;
+                return voxelGrid;
+            }
+
+            fs["cameraMatrix"] >> cameraMatrix;
+            fs["distCoeffs"] >> distCoeffs;
+            fs.release();
+        }
+
         for (int i = 0; i < 4; ++i) {
             cv::Mat silhouette = cv::Mat::zeros(imageHeight, imageWidth, CV_8UC1);
             int centerX = imageWidth / 2;
@@ -39,22 +73,20 @@ public:
             silhouettes.push_back(silhouette);
         }
 
-        Eigen::Matrix3f intrinsics = Eigen::Matrix3f::Identity();
-        intrinsics(0, 0) = 500.0f;
-        intrinsics(1, 1) = 500.0f;
-        intrinsics(0, 2) = imageWidth / 2.0f;
-        intrinsics(1, 2) = imageHeight / 2.0f;
+        Eigen::Matrix3f intrinsics;
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                intrinsics(i, j) = cameraMatrix.at<double>(i, j);
+            }
+        }
+        
+        std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
 
-        std::vector<Eigen::Matrix4f> extrinsics;
-        for (int i = 0; i < 4; ++i) {
-            Eigen::Matrix4f extrinsic = Eigen::Matrix4f::Identity();
-            float angle = (i * M_PI / 2.0f);
-            extrinsic(0, 0) = cos(angle);
-            extrinsic(0, 2) = sin(angle);
-            extrinsic(2, 0) = -sin(angle);
-            extrinsic(2, 2) = cos(angle);
-            extrinsic(2, 3) = -1.0f;
-            extrinsics.push_back(extrinsic);
+        std::vector<Eigen::Matrix4f> extrinsics = calculatePoses();
+
+        std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
+        for (const auto& extrinsic : extrinsics) {
+            std::cout << extrinsic << std::endl;
         }
 
         voxelGrid.initializeGridFromBoundingBox();

@@ -9,7 +9,7 @@ project(ARVoxelCarving)
 set(LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Libs CACHE PATH "Path to lib folder")
 set(Eigen3_DIR ${LIBRARY_DIR}/Eigen/share/eigen3/cmake CACHE PATH "Path to installed Eigen")
 # Set C++ flags
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -29,6 +29,8 @@ set(HEADERS
         VoxelGrid.h
         sam_segmentation_generation.h
         VoxelCarveTest.h
+        camera_calibration.h 
+        aruco_marker_detection.h
 )
 
 set(SOURCES
@@ -40,6 +42,8 @@ set(SOURCES
         BoundingBox.cpp
         sam_segmentation_generation.cpp
         VoxelGrid.cpp
+        camera_calibration.cpp 
+        aruco_marker_detection.cpp
         main.cpp
 )
 

@@ -69,7 +69,9 @@ public:
         
         std::cout << "Intrinsic Matrix (3x3):\n" << intrinsics << std::endl;
 
-        std::vector<Eigen::Matrix4f> extrinsics = calculatePoses();
+        std::vector<Eigen::Matrix4f> extrinsics;
+        std::unordered_map<int, std::pair<cv::Mat, cv::Mat>> marker_positions;
+        calculatePoses(extrinsics, marker_positions);
 
         for (auto &extr: extrinsics) {
             Eigen::Matrix3f R = extr.block<3, 3>(0, 0);

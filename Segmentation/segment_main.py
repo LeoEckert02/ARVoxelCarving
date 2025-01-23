@@ -9,7 +9,7 @@ def main():
     # Parameters
     checkpoint = "sam2.1_model/sam2.1_hiera_large.pt"
     model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
-    input_images_folder = "../resources/input_images"
+    input_images_folder = "../resources/u_input"
     segmented_images_folder = "../resources/segmented_images/"
 
     # Initialize SAM2 model

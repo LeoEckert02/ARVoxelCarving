@@ -24,6 +24,8 @@ Eigen::Matrix4f cvToEigenTransform(const cv::Mat& R, const cv::Mat& t) {
     transform(1, 3) = static_cast<float>(t.at<double>(1));
     transform(2, 3) = static_cast<float>(t.at<double>(2));
 
+    std::cout << "Transform:\n " << transform << std::endl;
+
     return transform;
 }
 
@@ -65,9 +67,8 @@ cv::Mat averageTranslations(const std::vector<cv::Mat>& translations) {
 }
 
 // Function to calculate camera poses
-std::vector<Eigen::Matrix4f> calculatePoses() {
-    std::vector<Eigen::Matrix4f> extrinsics;
-    std::unordered_map<int, std::pair<cv::Mat, cv::Mat>> marker_to_world;
+void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
+                    std::unordered_map<int, std::pair<cv::Mat, cv::Mat>>& marker_to_world) {
     cv::Mat initial_R_c2w, initial_t_c2w;
 
     cv::Mat cameraMatrix, distCoeffs;
@@ -100,7 +101,7 @@ std::vector<Eigen::Matrix4f> calculatePoses() {
 
     for (const std::string& imagePath : imagePaths) {
         cv::Mat frame = cv::imread(imagePath);
-        std::cout << "Doing extrinsincs calculation" << imagePath << std::endl;
+        std::cout << "Doing extrinsics calculation for " << imagePath << std::endl;
 
         if (frame.empty()) {
             continue;
@@ -188,9 +189,19 @@ std::vector<Eigen::Matrix4f> calculatePoses() {
         }
     }
 
+    // Print marker_to_world mappings
+    std::cout << "Marker to World Mappings:\n";
+    for (const auto& [id, transform] : marker_to_world) {
+        std::cout << "Marker ID: " << id << "\nRotation:\n" << transform.first
+                  << "\nTranslation:\n" << transform.second << "\n";
+    }
+
+    // Print camera positions and rotations
+    std::cout << "\nCamera Positions and Rotations:\n";
+    for (size_t i = 0; i < camera_positions.size(); ++i) {
+    }
+
     for (size_t i = 0; i < camera_positions.size(); ++i) {
         extrinsics.push_back(cvToEigenTransform(camera_rotations[i], camera_positions[i]));
     }
-
-    return extrinsics;
 }

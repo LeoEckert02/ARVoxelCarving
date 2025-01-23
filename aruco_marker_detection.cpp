@@ -85,7 +85,7 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
         }
     }
 
-    std::string folderPath = "../resources/input_images/";
+    std::string folderPath = "../resources/u_input/";
     std::vector<std::string> imagePaths;
 
     for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {

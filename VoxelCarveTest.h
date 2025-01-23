@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include <fstream>
+#include <sstream>
+#include <dirent.h>
 #include "VoxelGrid.h"
 #include "BoundingBox.h"
 #include "camera_calibration.h"
@@ -11,9 +14,9 @@ class VoxelCarveTest {
 private:
     Eigen::Vector3f minCorner;
     Eigen::Vector3f maxCorner;
-    int resolutionX = 150;
-    int resolutionY = 150;
-    int resolutionZ = 150;
+    int resolutionX = 300;
+    int resolutionY = 300;
+    int resolutionZ = 300;
     std::vector<cv::Mat> silhouettes;
     bool performCalibration;
 
@@ -34,7 +37,7 @@ public:
         if (performCalibration) {
             double reprojectionError;
 
-            std::string calibrationFolderPath = "../resources/camera_calibration/images/";
+            std::string calibrationFolderPath = "../resources/u_calibration/";
             int checkerboardWidth = 10;
             int checkerboardHeight = 7;
 
@@ -86,7 +89,7 @@ public:
 
         std::cout << "Extrinsic Matrices (4x4):" << extrinsics.size() << std::endl;
         for (const auto& extrinsic : extrinsics) {
-            std::cout << extrinsic << std::endl;
+            std::cout << extrinsic << std::endl << std::endl;
         }
 
         voxelGrid.initializeGridFromBoundingBox();
@@ -104,7 +107,6 @@ public:
                 }
             }
         }
-
         std::cout << "Number of occupied voxels after carving: " << occupiedVoxels << std::endl;
         return voxelGrid;
     }

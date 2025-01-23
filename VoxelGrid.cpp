@@ -68,20 +68,6 @@ void VoxelGrid::carveVoxels(const std::vector<Eigen::Matrix3f>& intrinsics,
                     int u = static_cast<int>(projected.x() / projected.z());
                     int v = static_cast<int>(projected.y() / projected.z());
 
-                    /*
-                    if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows) {
-                        insideAllSilhouettes = false;
-                        break;
-                    }
-                    
-                    cv::Vec4b pixel = silhouettes[cam].at<cv::Vec4b>(v, u);
-                    
-                    if(pixel[3] == 0)
-                    {
-                        insideAllSilhouettes = false;
-                        break;
-                    }*/
-
                     if (u < 0 || v < 0 || u >= silhouettes[cam].cols || v >= silhouettes[cam].rows || static_cast<int>(silhouettes[cam].at<uchar>(v, u) == 0)) {
                         insideAllSilhouettes = false;
                         break;
@@ -150,26 +136,6 @@ Eigen::Vector3f VoxelGrid::getVoxelCenter(int x, int y, int z) const {
         boundingBox.minCorner.z() + (z + 0.5f) * voxelSizeZ
     };
 }
-
-/*Eigen::MatrixXf cvToEigen(const cv::Mat& cvMat) {
-    if (cvMat.empty()) {
-        throw std::invalid_argument("Input cv::Mat is empty.");
-    }
-
-    if (cvMat.type() != CV_32F && cvMat.type() != CV_64F) {
-        throw std::invalid_argument("Only CV_32F or CV_64F type matrices can be converted.");
-    }
-
-    Eigen::MatrixXf eigenMat(cvMat.rows, cvMat.cols);
-
-    for (int row = 0; row < cvMat.rows; ++row) {
-        for (int col = 0; col < cvMat.cols; ++col) {
-            eigenMat(row, col) = static_cast<float>(cvMat.at<double>(row, col));
-        }
-    }
-
-    return eigenMat;
-}*/
 
 std::vector<std::vector<std::vector<bool>>> VoxelGrid::getVoxels() const{
     return voxels;

@@ -11,6 +11,7 @@ int main() {
     PostProcInterface postProcInterface;
     postProcInterface.setVoxelGrid(&carved_voxel_grid);
     postProcInterface.generateMCMeshVG(0.);
-    postProcInterface.smoothenMesh(1., 5);
+    postProcInterface.setKernel(Kernel::KernelType::LAPLACE, 1., 0.8);
+    postProcInterface.smoothenMesh(2., 5);
     postProcInterface.writeMesh("output_mesh.off");
 }

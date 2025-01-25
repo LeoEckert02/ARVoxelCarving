@@ -14,15 +14,15 @@ class VoxelCarveTest {
 private:
     Eigen::Vector3f minCorner;
     Eigen::Vector3f maxCorner;
-    int resolutionX = 300;
-    int resolutionY = 300;
-    int resolutionZ = 300;
+    int resolutionX = 200;
+    int resolutionY = 200;
+    int resolutionZ = 120;
     std::vector<cv::Mat> silhouettes;
     bool performCalibration;
 
 public:
     VoxelCarveTest(std::vector<cv::Mat> silhouettes, bool performCalibration = false)
-        : minCorner(-0.25f, -0.25f, -0.25f), maxCorner(0.25f, 0.25f, 0.25f), silhouettes(silhouettes), performCalibration(performCalibration) {
+        : minCorner(-0.25f, -0.25f, -0.05f), maxCorner(0.25f, 0.25f, 0.25f), silhouettes(silhouettes), performCalibration(performCalibration) {
             std::cout << "Started to Voxel Carving!\n";
         }
 

@@ -133,8 +133,10 @@ class SAM2Segmentation:
     def load_images(self, folder_path):
         """Load images from the specified folder."""
         image_paths = [os.path.join(folder_path, file) for file in os.listdir(folder_path)
-                       if file.endswith(('.png', '.jpg', '.jpeg'))]
+                       if file.endswith(('.png', '.jpg', '.jpeg', '.JPG'))]
         images = [Image.open(image_path) for image_path in image_paths]
+
+        images.sort(key=lambda f: int(''.join(filter(str.isdigit, os.path.basename(f.filename)))))
         self.images = [np.array(img.convert('RGB')) for img in images]
         # self.points = np.zeros((len(self.images), 2), dtype=int)
         # self.labels = np.zeros(len(self.images), dtype=int)

@@ -115,6 +115,12 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
         detector.detectMarkers(frame, markerCorners, markerIds, rejectedCandidates);
 
         if (!markerIds.empty() && useCalibration) {
+            // Average rotation matrix for the world
+            cv::Mat avg_R_world = cv::Mat::eye(3, 3, CV_64F);
+            // Average translation (centroid) for the world
+            cv::Mat avg_t_world = cv::Mat::zeros(3, 1, CV_64F); 
+            std::vector<cv::Mat> marker_rotations, marker_translations;
+
             cv::Mat objPoints(4, 1, CV_32FC3);
             objPoints.ptr<cv::Vec3f>(0)[0] = cv::Vec3f(-markerLength / 2.f, markerLength / 2.f, 0);
             objPoints.ptr<cv::Vec3f>(0)[1] = cv::Vec3f(markerLength / 2.f, markerLength / 2.f, 0);
@@ -138,30 +144,9 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
                 t_m2c = cv::Mat(tvecs[i]).clone();
 
                 if (!initial_frame_set) {
-                    if (!initial_marker_set) {
-                        // Store the first marker's transform
-                        initial_R_m2c = R_m2c.clone();
-                        initial_t_m2c = t_m2c.clone();
-                        initial_marker_set = true;
-
-                        // Set first marker as origin (0,0,0) with upward rotation
-                        cv::Mat R_m2w = cv::Mat::eye(3, 3, CV_64F);
-                        cv::Mat t_m2w = cv::Mat::zeros(3, 1, CV_64F);
-
-                        marker_to_world[markerId] = {R_m2w, t_m2w};
-
-                        // Calculate camera pose relative to world origin
-                        cv::Mat R_c2w = R_m2c.t();
-                        cv::Mat t_c2w = -R_c2w * t_m2c;
-
-                        R_candidates.push_back(R_c2w);
-                        t_candidates.push_back(t_c2w);
-                    } else {
-                        cv::Mat R_relative = initial_R_m2c.t() * R_m2c;
-                        cv::Mat t_relative = initial_R_m2c.t() * (t_m2c - initial_t_m2c);
-
-                        marker_to_world[markerId] = {R_relative, t_relative};
-                    }
+                    // Collect all rotations and translations for averaging in the first frame
+                    marker_rotations.push_back(R_m2c.clone());
+                    marker_translations.push_back(t_m2c.clone());
                 } else {
                     if (marker_to_world.find(markerId) == marker_to_world.end())
                         continue;
@@ -177,7 +162,35 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
                 }
             }
 
-            initial_frame_set = true;
+            
+            if (!initial_frame_set && !marker_rotations.empty()) {
+                // First frame: calculate average rotation and translation
+                avg_R_world = averageRotations(marker_rotations);
+                avg_t_world = averageTranslations(marker_translations);
+
+                cv::Mat avg_R_world_32f;
+                avg_R_world.convertTo(avg_R_world_32f, CV_32F);
+                cv::Mat avg_t_world_32f;
+                avg_t_world.convertTo(avg_t_world_32f, CV_32F);
+
+                // Set up the world origin
+                for (size_t i = 0; i < markerIds.size(); ++i) {
+                    int markerId = markerIds[i];
+                    cv::Mat R_m2c = marker_rotations[i];
+                    cv::Mat t_m2c = marker_translations[i];
+
+                    // Transform to world origin
+                    cv::Mat t_m2w = avg_R_world_32f.t() * (t_m2c - avg_t_world_32f);
+                    cv::Mat R_m2w = avg_R_world_32f.t() * R_m2c;
+
+                    // set Z of marker position to 0 manually, as they should always be perfectly level
+                    t_m2w.at<float>(2, 0) = 0;
+
+                    marker_to_world[markerId] = {R_m2w.clone(), t_m2w.clone()};
+                }
+
+                initial_frame_set = true;
+            }
 
             if (!R_candidates.empty() && !t_candidates.empty()) {
                 cv::Mat R_avg = averageRotations(R_candidates);
@@ -194,11 +207,6 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
     for (const auto& [id, transform] : marker_to_world) {
         std::cout << "Marker ID: " << id << "\nRotation:\n" << transform.first
                   << "\nTranslation:\n" << transform.second << "\n";
-    }
-
-    // Print camera positions and rotations
-    std::cout << "\nCamera Positions and Rotations:\n";
-    for (size_t i = 0; i < camera_positions.size(); ++i) {
     }
 
     for (size_t i = 0; i < camera_positions.size(); ++i) {

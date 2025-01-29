@@ -1,5 +1,4 @@
-﻿import os
-
+﻿
 from segmentation import SAM2Segmentation
 
 
@@ -18,9 +17,8 @@ def main(needs_input=True, needs_bounding_box=True, show_results=False):
     segmentator.save_segmented_images(segmented_images_folder, show_results)
 
 
-main()
 if __name__ == "__main__":
-    needs_input = True
-    needs_bounding_box = True
+    needs_input = False
+    needs_bounding_box = False
     show_results = False
     main(needs_input, needs_bounding_box, show_results)

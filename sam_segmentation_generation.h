@@ -14,8 +14,8 @@ public:
     std::string segmentationDir = fs::current_path().parent_path().string() + "/Segmentation";
     std::string venvName = "pythonvenv";
     std::string pythonVersion = "python3.12";
-    bool needs_input = true;
-    bool needs_bounding_box = true;
+    bool needs_input = false;
+    bool needs_bounding_box = false;
     bool show_results = false;
 };
 

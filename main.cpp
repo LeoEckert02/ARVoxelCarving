@@ -6,17 +6,16 @@
 int main() {
     // Main Chad Segmentation part
     const SegmentationParams params;
-    SamSegmentationGenerator::run_segmentation_script(params);
-    // auto silhouettes = SamSegmentationGenerator::grabSegmentedImages(params);
+    auto silhouettes = SamSegmentationGenerator::grabSegmentedImages(params);
 
-    // // Rest of the code
-    // VoxelCarveTest* voxelCarveTest = new VoxelCarveTest(silhouettes, true);
-    // VoxelGrid carved_voxel_grid = voxelCarveTest->Test();
-    //
-    // PostProcInterface postProcInterface;
-    // postProcInterface.setVoxelGrid(&carved_voxel_grid);
-    // postProcInterface.generateMCMeshVG(0.);
-    // postProcInterface.setKernel(Kernel::KernelType::LAPLACE, 1., 0.8);
-    // postProcInterface.smoothenMesh(2., 5);
-    // postProcInterface.writeMesh("output_mesh.off");
+    // Rest of the code
+    VoxelCarveTest* voxelCarveTest = new VoxelCarveTest(silhouettes, true);
+    VoxelGrid carved_voxel_grid = voxelCarveTest->Test();
+
+    PostProcInterface postProcInterface;
+    postProcInterface.setVoxelGrid(&carved_voxel_grid);
+    postProcInterface.generateMCMeshVG(0.);
+    postProcInterface.setKernel(Kernel::KernelType::LAPLACE, 1., 0.8);
+    postProcInterface.smoothenMesh(2., 5);
+    postProcInterface.writeMesh("output_mesh.off");
 }

@@ -10,7 +10,9 @@ std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages(const Segment
     std::vector<cv::Mat> images;
 
     std::cout << params.pythonVersion << std::endl;
-    run_segmentation_script(params);
+
+    // Call this to run the segmentation script
+    // run_segmentation_script(params);
 
     std::vector<std::string> filePaths;
     for (const auto &entry: fs::directory_iterator(path)) {

@@ -147,6 +147,13 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
                     // Collect all rotations and translations for averaging in the first frame
                     marker_rotations.push_back(R_m2c.clone());
                     marker_translations.push_back(t_m2c.clone());
+
+                    // Calculate camera pose relative to world origin
+                    cv::Mat R_c2w = R_m2c.t();
+                    cv::Mat t_c2w = -R_c2w * t_m2c;
+
+                    R_candidates.push_back(R_c2w);
+                    t_candidates.push_back(t_c2w);
                 } else {
                     if (marker_to_world.find(markerId) == marker_to_world.end())
                         continue;

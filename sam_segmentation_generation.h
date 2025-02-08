@@ -14,8 +14,8 @@ public:
     std::string segmentationDir = fs::current_path().parent_path().string() + "/Segmentation";
     std::string venvName = "pythonvenv";
     std::string pythonVersion = "python3.12";
-    bool needs_input = false;
-    bool needs_bounding_box = false;
+    bool needs_input = true;
+    bool needs_bounding_box = true;
     bool show_results = false;
 };
 
@@ -25,6 +25,7 @@ public:
 
     static void run_segmentation_script(const SegmentationParams &params);
 
+    // DEPRECATED
     static void enable_virtual_environment(const SegmentationParams &params);
 
     static void create_setup_venv(const SegmentationParams &params);

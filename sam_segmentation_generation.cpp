@@ -6,13 +6,13 @@
 
 
 std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages(const SegmentationParams &params) {
-    std::string path = fs::current_path().parent_path().string() + "/resources/segmented_images";
+    std::string path = fs::current_path().parent_path().string() + "/resources/u_segmented_output";
     std::vector<cv::Mat> images;
 
     std::cout << params.pythonVersion << std::endl;
 
     // Call this to run the segmentation script
-    // run_segmentation_script(params);
+    run_segmentation_script(params);
 
     std::vector<std::string> filePaths;
     for (const auto &entry: fs::directory_iterator(path)) {
@@ -65,6 +65,54 @@ std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages(const Segment
     return images;
 }
 
+
+void SamSegmentationGenerator::run_segmentation_script(const SegmentationParams &params) {
+    std::string command = "python3 ../Segmentation/segment_main.py";
+
+    command += " " + std::string(params.needs_input ? "True" : "False");
+    command += " " + std::string(params.needs_bounding_box ? "True" : "False");
+    command += " " + std::string(params.show_results ? "True" : "False");
+
+    int status = std::system(command.c_str());
+
+    if (status != 0) {
+        std::cerr << "Error: Python script execution failed with status " << status << std::endl;
+    }
+    std::cout << "Python script executed successfully!" << std::endl;
+    // DEPRECATED CODE
+
+//    Py_Initialize();
+//
+//    PyRun_SimpleString("import sys");
+//    std::string addPathCommand = std::string("sys.path.append('") + params.segmentationDir + "')";
+//    PyRun_SimpleString(addPathCommand.c_str());
+//    PyRun_SimpleString("print(sys.path)");
+//    PyRun_SimpleString("import numpy; print(numpy.__file__)");
+//
+//    if (fs::exists(params.segmentationDir + "/" + params.venvName)) {
+//        enable_virtual_environment(params);
+//    } else {
+//        std::cout <<
+//                "This is the first run. (will take a while) Creating virtual environment and installing dependencies..."
+//                << std::endl;
+//        create_setup_venv(params);
+//        enable_virtual_environment(params);
+//    }
+
+
+//    // Load the Python script
+//    const char *scriptName = "segment_main";
+//    PyObject *pModule = PyImport_ImportModule(scriptName);
+//    if (pModule == nullptr) {
+//        PyErr_Print();
+//        std::cerr << "Error: Failed to import Python script." << std::endl;
+//    }
+//
+//    Py_Finalize();
+}
+
+// DEPRECATED CODE
+
 void SamSegmentationGenerator::create_setup_venv(const SegmentationParams &params) {
     try {
         const std::string venv_path = params.segmentationDir + "/" + params.venvName;
@@ -83,7 +131,7 @@ void SamSegmentationGenerator::create_setup_venv(const SegmentationParams &param
     } catch (...) {
         PyErr_Print();
         std::cerr << "An error occurred while creating the virtual environment or installing dependencies." <<
-                std::endl;
+                  std::endl;
     }
 }
 
@@ -103,7 +151,7 @@ void SamSegmentationGenerator::enable_virtual_environment(const SegmentationPara
         std::string set_env_vars =
                 "import os\n"
                 "os.environ['PYTHONHOME'] = r'" + venv_path + "'\n"
-                "os.environ['PYTHONPATH'] = r'" + site_packages + "'";
+                                                              "os.environ['PYTHONPATH'] = r'" + site_packages + "'";
         PyRun_SimpleString(set_env_vars.c_str());
 
         std::cout << "Virtual environment enabled successfully." << std::endl;
@@ -111,49 +159,4 @@ void SamSegmentationGenerator::enable_virtual_environment(const SegmentationPara
         PyErr_Print();
         std::cerr << "Error enabling virtual environment: " << e.what() << std::endl;
     }
-}
-
-
-void SamSegmentationGenerator::run_segmentation_script(const SegmentationParams &params) {
-    Py_Initialize();
-
-    PyRun_SimpleString("import sys");
-    std::string addPathCommand = std::string("sys.path.append('") + params.segmentationDir + "')";
-    PyRun_SimpleString(addPathCommand.c_str());
-
-    if (fs::exists(params.segmentationDir + "/" + params.venvName)) {
-        enable_virtual_environment(params);
-    } else {
-        std::cout <<
-                "This is the first run. (will take a while) Creating virtual environment and installing dependencies..."
-                << std::endl;
-        create_setup_venv(params);
-        enable_virtual_environment(params);
-    }
-
-
-    // Load the Python script
-    const char *scriptName = "segment_main";
-    PyObject *pModule = PyImport_ImportModule(scriptName);
-    if (pModule == nullptr) {
-        PyErr_Print();
-        std::cerr << "Error: Failed to import Python script." << std::endl;
-    }
-
-    // // Function call
-    // PyObject *pFunc = PyObject_GetAttrString(pModule, "main");
-    // if (!pFunc || !PyCallable_Check(pFunc)) {
-    //     PyErr_Print();
-    //     std::cerr << "Error: Failed to find the Python function." << std::endl;
-    //     Py_XDECREF(pFunc);
-    //     Py_DECREF(pModule);
-    //     Py_Finalize();
-    //     return;
-    // }
-    // PyObject_CallNoArgs(pFunc);
-    // PyObject *pArgs = Py_BuildValue("(OOO)", Py_True, Py_True, Py_False);
-
-    // PyObject_CallObject(pFunc, pArgs);
-
-    Py_Finalize();
 }

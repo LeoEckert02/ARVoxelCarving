@@ -16,6 +16,7 @@ modeling. The following tutorial provides instructions on how to use the applica
 4. [File Structure](#file-structure)
 5. [Requirements](#requirements)
 6. [Authors](#authors)
+
 ---
 
 ## Overview
@@ -33,9 +34,11 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
 
 ### Prerequisites
 
-1. Install **CMake** and a C++ compiler (e.g., GCC or MSVC).
-2. Ensure **OpenCV** and **Eigen** (optional for acceleration) are installed.
-3. Install Python (optional) for some tasks.
+1. Docker installed on WSL2/Linux/Windows.
+2. Download the Trained Model
+   from [here](https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt)
+3. Move the model to `Segmentation/sam2.1_model` directory. **(Important)** this step is for setting
+   up the segmentation module.
 
 ### Build Instructions
 
@@ -44,75 +47,87 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
    git clone https://github.com/LeoEckert02/ARVoxelCarving.git
    cd ARVoxelCarving
    ```
-2. Create a build directory:
-   `mkdir build && cd build`
-
-3. Build the application:
-   `make`
+2. Build the Docker image:
+   ```bash
+   docker build -t 3dsmc .
+   ``` 
+   Windows users can use the following command:
+   ```bash
+    docker build -t 3dsmc . --platform linux/amd64
+    ```
+   **Note:** The build process may take a while due to the large image size. \
+   **Note:** Look through the docker file it might need adjustment.
+3. Run the Docker container:
+   ```bash
+   docker-compose up
+   ```
+4. Open localhost in your browser to access the code editor:
+    ```bash
+    http://localhost:8443
+    ```
+5. The code editor might need password authentication. The default password is `password`.
+6. Open the terminal in the code editor and make sure you are in the `project` directory:
+    ```bash
+    cd ARVoxelCarving
+    ```
+7. Run the following command to build the project:
+   ```bash
+   mkdir build && cd build
+   cmake ..
+   make
+   ```
+8. Run the application:
+   ```bash
+    ./ARVoxelCarving
+    ```
 
 ---
 
 ## Usage Instructions
 
-### Preprocessing
+Using the application is quite easy. As we have described in the Build Instructions, we know how to run the
+application. The parameters are set in the `main.cpp` file. The application will run the following steps:
 
-1. **Camera Calibration**:
-    - **Input**: images of a checkerboard from various angles.
-    - Run the calibration module:
-      ./voxel_carving --calibrate [input_folder]
-    - **Outputs:** intrinsic and extrinsic camera parameters.
+```cpp
+const SegmentationParams params;
+```
 
-2. **Pose Estimation**:
-    - Print and place ArUco markers near the object.
-    - Run the pose estimation module:
-      ./voxel_carving --estimate_pose [calibration_file] [input_folder]
+You can set the parameters as you want. Here is the list:
 
-3. **Image Segmentation**:
-    - Use green-screen or automatic segmentation tools like SAM.
-    - Run the segmentation module:
-      ./voxel_carving --segment [input_folder]
+- `segmentationDir`: The directory where segmnetation happens;
+- `venvName `: To set the virtual environment name **DEPRECATED**;
+- `pythonVersion`: To set the python version **DEPRECATED**;
+- `needs_input`: Using points, this parameter is for the segmentation, so it can segment the images with greater
+  accuracy;
+- `needs_bounding_box`: Using bounding boxes to mark the object, this parameter is for the segmentation, so it can
+  segment the images with even greater accuracy;
+- `params.show_results`: If you want to visualize the output segmented images;
 
-### Voxel Carving
-
-1. Initialize the voxel grid:
-   ./voxel_carving --initialize_voxel_grid [pose_file] [image_folder]
-
-2. Perform carving:
-   ./voxel_carving --carve [voxel_grid_file] [segmented_images]
-
-### Postprocessing
-
-1. Generate the mesh:
-   ./voxel_carving --generate_mesh [voxel_grid_file]
-
-2. Smooth the mesh:
-   ./voxel_carving --smooth_mesh [mesh_file]
-
-3. Export the mesh:
-   ./voxel_carving --export_mesh [mesh_file] --format off
-
+You can leave all of these parameters as defaults, by not changing anything. And it will run with recommended
+settings.
 ---
 
 ## File Structure
 
 ```
-project/
+ARVoxelCarving/
 │
-├── src/ # Source code
-│ ├── camera_calibration.cpp # Camera calibration
-│ ├── pose_estimation.cpp # Pose estimation
-│ ├── segmentation.cpp # Image segmentation
-│ ├── voxel_carving.cpp # Voxel carving
-│ ├── mesh_generation.cpp # Mesh processing
-│ └── export.cpp # Export functionalities
-│
-├── resources/ # Sample data
-│ ├── input/ # Input images
-│ ├── output/ # Output files (calibration, voxel grids, meshes)
-│ └── markers/ # AR marker PDFs
+├── resources/ # All resources (images, models, etc.)
+│ ├── aruco_markers/  # ArUco marker images
+│ ├── camera_calibration/ # Calibration, voxel grids, meshes
+│ ├── u_calibration/ # Calibration images for the camera
+│ ├── u_input/ # Input images for the object segmentation (USER INPUT)
+│ ├── u_poses/ # Output files (calibration, voxel grids, meshes)
+│ └── u_segmented_output/ # Output images from the segmentation module
 │
 ├── build/ # Build directory
 ├── README.md # This file
+├── mesh/ # Mesh module scripts including Marching Cubes implementation
+├── Segmentation/ # Segmentation module
+├── docker-compose.yaml # Docker configuration
+├── Dockerfile # Docker build configuration
+├── ....
+├── main.cpp # Main application
 └── CMakeLists.txt # Build configuration
 ```
 
@@ -125,6 +140,7 @@ project/
 - **OpenCV**: AR marker detection and segmentation.
 - **Eigen**: Matrix operations.
 - **Ceres**: Optional for pose optimization.
+- **OpenCV**: For image processing.
 
 ### Authors
 

@@ -55,6 +55,7 @@ void PostProcInterface::setKernel(Kernel::KernelType KT, double c, double alpha)
         break;
     case Kernel::KernelType::INVERSE:
         f_smoother.setKernel(new Kernel::RCGaussianInverseKernel(c, alpha));
+        break;
     default:
         f_smoother.setKernel(new Kernel::Kernel());
         break;
@@ -79,13 +80,12 @@ void PostProcInterface::generateMCMesh(const SDF::SDFCSample &sdf, double level)
 }
 
 void PostProcInterface::generateMCMeshVG(double level) {
-    // if (f_voxelGrid == nullptr) {
-    //     std::cout << "\t[MPP] Error: The voxel grid was not passed to the post processing module." << std::endl;
-    // }
-    // f_smoother.clearNb();
-    // MarchingCubes::MarchingCubesMeshGenerator generator;
-    // generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(vg), level);
-    //TODO Add VG mesh generation
+    if (f_voxelGrid == nullptr) {
+        std::cout << "\t[MPP] Error: The voxel grid was not passed to the post processing module." << std::endl;
+    }
+    f_smoother.clearNb();
+    MarchingCubes::MarchingCubesMeshGenerator generator;
+    generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(*f_voxelGrid), level);
     return;
 }
 

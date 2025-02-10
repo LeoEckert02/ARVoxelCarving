@@ -77,5 +77,6 @@ public:
     /// @brief Mesh from voxel grid generation submenu.
     void generateMeshFromVoxelGridMenu();
 
+    /// @brief Main bash menu.
     void mainMenu();
 };

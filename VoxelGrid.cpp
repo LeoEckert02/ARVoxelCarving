@@ -64,6 +64,8 @@ void VoxelGrid::carveVoxels(const std::vector<Eigen::Matrix3f>& intrinsics,
                     Eigen::Vector4f voxelHomogeneous(voxelCenter.x(), voxelCenter.y(), voxelCenter.z(), 1.0f);
                     Eigen::Vector4f voxelCameraSpace = extrinsics[cam] * voxelHomogeneous;
                     Eigen::Vector3f projected = intrinsics[cam] * voxelCameraSpace.head<3>();
+
+                    if(voxelCameraSpace.z() <= 0.0f) continue;
                     
                     int u = static_cast<int>(projected.x() / projected.z());
                     int v = static_cast<int>(projected.y() / projected.z());

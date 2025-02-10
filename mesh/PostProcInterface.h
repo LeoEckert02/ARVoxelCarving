@@ -25,7 +25,7 @@ public:
 
     /// @brief Sets the VoxelGrid* field for further mesh generation with generateMCMeshVG(double)
     /// @param voxelGrid Voxel grid pointer to pass to the PostProcInterface field.
-    void setVoxelGrid(SDF::VoxelGrid* voxelGrid);
+    void setVoxelGrid(VoxelGrid* voxelGrid);
 
     /// @brief Loads mesh from .off file specified. Throws exception if the file can not be opened.
     /// @param path Full path to .off file to load the mesh from.

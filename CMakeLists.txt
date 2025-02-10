@@ -28,7 +28,7 @@ set(HEADERS
         BoundingBox.h
         VoxelGrid.h
         sam_segmentation_generation.h
-        VoxelCarveTest.h
+        VoxelCarve.h
         camera_calibration.h 
         aruco_marker_detection.h
 )

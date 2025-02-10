@@ -1,6 +1,6 @@
 #include "PostProcInterface.h"
 
-void PostProcInterface::setVoxelGrid(SDF::VoxelGrid* voxelGrid) {
+void PostProcInterface::setVoxelGrid(VoxelGrid* voxelGrid) {
     f_voxelGrid = voxelGrid;
 }
 

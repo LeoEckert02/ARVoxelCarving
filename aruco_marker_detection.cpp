@@ -191,7 +191,7 @@ void calculatePoses(std::vector<Eigen::Matrix4f>& extrinsics,
                     cv::Mat R_m2w = avg_R_world_32f.t() * R_m2c;
 
                     // set Z of marker position to 0 manually, as they should always be perfectly level
-                    t_m2w.at<float>(2, 0) = 0;
+                    //t_m2w.at<float>(2, 0) = 0;
 
                     marker_to_world[markerId] = {R_m2w.clone(), t_m2w.clone()};
                 }

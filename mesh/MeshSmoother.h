@@ -17,7 +17,8 @@ namespace Kernel {
         CAUCHY,
         RCGAUSSIAN,
         LAPLACE,
-        RAYLEIGH
+        RAYLEIGH,
+        INVERSE
     };
 
     class Kernel {
@@ -97,6 +98,24 @@ namespace Kernel {
             return f_alpha * exp(-t * t / 2) * t + (1 - f_alpha);
         }
     };
+
+    class RCGaussianInverseKernel: public Kernel {
+        public:
+            double f_c;
+            // Interpolation with local averaging
+            // [0; 1], alpha * RCGaussianInverse + (1 - alpha) * LocalAvg
+            double f_alpha;
+    
+            RCGaussianInverseKernel(double c, double alpha):
+            f_c(c),
+            f_alpha(alpha)
+            {}
+    
+            double g(double delta) override {
+                double t = delta / f_c;
+                return -f_alpha * sqrt(0.5 / M_PI) * exp(-t * t / 2) + sqrt(0.5 / M_PI) * f_alpha + (1 - f_alpha);
+            }
+        };
 };
 
 namespace Mesh {
@@ -154,7 +173,7 @@ namespace Mesh {
 
         void precalculateNeighbours(const Mesh::TriangleMesh &mesh);
 
-        void smoothenMesh(Mesh::TriangleMesh& mesh, uint16_t iterations, bool wide = false) const;
+        void smoothenMesh(Mesh::TriangleMesh& mesh, uint16_t iterations, bool wide = false, bool useDelta = false) const;
     };
 
 }

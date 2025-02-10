@@ -3,13 +3,31 @@
 #include <Eigen/Dense>
 #include <cstdint>
 #include <vector>
-#include "../VoxelGrid.h"
 
 using namespace Eigen;
 
 
 
 namespace SDF {
+
+    // TEMP declaration of voxel grid and bounding box
+    struct BoundingBox {
+        Eigen::Vector3f minCorner;
+        Eigen::Vector3f maxCorner;
+    };
+
+    class VoxelGrid {
+    private:
+        BoundingBox boundingBox;
+        std::vector<std::vector<std::vector<bool>>> voxels;
+        std::vector<std::vector<std::vector<Vector4uc>>> colors;
+        
+    public:
+        const BoundingBox& getBoundingBox() const;
+        const std::vector<std::vector<std::vector<bool>>>& getVoxels() const;
+        const std::vector<std::vector<std::vector<Vector4uc>>>& getColors() const;
+        bool isVoxelOccupied(int x, int y, int z) const;
+    };
 
     typedef std::function<double(Vector3d)> ScalarFunction3D;
 
@@ -116,32 +134,31 @@ namespace SDF {
             }
         }
 
-        static SDFCSample convertVoxelGridToSDFC(const VoxelGrid& voxelGrid) {
-            uint32_t n, m, p;
-            n = voxelGrid.getVoxels().size();
-            m = voxelGrid.getVoxels().at(0).size();
-            p = voxelGrid.getVoxels().at(0).at(0).size();
+        // static SDFCSample convertVoxelGridToSDFC(const VoxelGrid& voxelGrid) {
+        //     uint32_t n, m, p;
+        //     n = voxelGrid.getVoxels().size();
+        //     m = voxelGrid.getVoxels().at(0).size();
+        //     p = voxelGrid.getVoxels().at(0).at(0).size();
 
-            Vector3d origin = voxelGrid.getBoundingBox().minCorner.cast<double>();
-            Vector3d size = (voxelGrid.getBoundingBox().maxCorner - voxelGrid.getBoundingBox().minCorner).cast<double>();
+        //     Vector3d origin = voxelGrid.getBoundingBox().minCorner.cast<double>();
+        //     Vector3d size = (voxelGrid.getBoundingBox().maxCorner - voxelGrid.getBoundingBox().minCorner).cast<double>();
 
-            SDFCSample sdfcs(n, m, p, origin, size);
+        //     SDFCSample sdfcs(n, m, p, origin, size);
 
-            for (uint32_t i = 0; i < n; i++) {
-                for (uint32_t j = 0; j < m; j++) {
-                    for (uint32_t k = 0; k < p; k++) {
-                        bool occupied = voxelGrid.isVoxelOccupied(i, j, k);
-                        sdfcs.value(i, j, k) = occupied ? -1. : 1.;
-                        // TODO: Add color copy if necessary
-                        // if (occupied) {
-                        //     sdfcs.color(i, j, k) = voxelGrid.getColors().at(i).at(j).at(k);
-                        // }
-                    }
-                }
-            }
+        //     for (uint32_t i = 0; i < n; i++) {
+        //         for (uint32_t j = 0; j < m; j++) {
+        //             for (uint32_t k = 0; k < p; k++) {
+        //                 bool occupied = voxelGrid.isVoxelOccupied(i, j, k);
+        //                 sdfcs.value(i, j, k) = occupied ? -1. : 1.;
+        //                 if (occupied) {
+        //                     sdfcs.color(i, j, k) = voxelGrid.getColors().at(i).at(j).at(k);
+        //                 }
+        //             }
+        //         }
+        //     }
 
-            return sdfcs;
-        }
+        //     return sdfcs;
+        // }
     };
 
 }

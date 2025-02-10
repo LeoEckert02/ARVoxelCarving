@@ -54,6 +54,32 @@ bool MeshLoader::loadTriangleMeshOff(const std::string& path, Mesh::TriangleMesh
             mesh.addVertex(std::move(coordinates), std::move(color));
         }
     }
+    // If color information is provided no alpha
+    if (header.compare("C3OFF") == 0) {
+        // Start for cycle for number of vertices
+        for (unsigned i = 0; i < vCount; i++) {
+            // Read coordinates
+            Vector3d coordinates;
+            ifStream >> coordinates.x();
+            ifStream >> coordinates.y();
+            ifStream >> coordinates.z();
+
+            // Read color
+            Vector3i colorI;
+            ifStream >> colorI.x();
+            ifStream >> colorI.y();
+            ifStream >> colorI.z();
+
+            Vector4uc color(
+                (unsigned char)colorI.x(),
+                (unsigned char)colorI.y(),
+                (unsigned char)colorI.z(),
+                (unsigned char)(255)
+            );
+            // Add vertex
+            mesh.addVertex(std::move(coordinates), std::move(color));
+        }
+    }
     else if (header.compare("OFF") == 0) {
         // Start for cycle for number of vertices
         for (unsigned i = 0; i < vCount; i++) {

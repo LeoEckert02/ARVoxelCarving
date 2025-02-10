@@ -735,6 +735,4 @@ void MarchingCubes::MarchingCubesMeshGenerator::generateMCMesh(Mesh::TriangleMes
             }
         }
     }
-    // Clearing edge occupancy
-    f_edgeOccupancy.clear();
 }

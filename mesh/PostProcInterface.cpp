@@ -1,7 +1,8 @@
 #include "PostProcInterface.h"
 
-void PostProcInterface::setVoxelGrid(VoxelGrid* voxelGrid) {
-    f_voxelGrid = voxelGrid;
+void PostProcInterface::setVoxelGrid(SDF::VoxelGrid* voxelGrid) {
+    // TODO Uncomment
+    //f_voxelGrid = voxelGrid;
 }
 
 bool PostProcInterface::loadMesh(std::string path)
@@ -53,13 +54,15 @@ void PostProcInterface::setKernel(Kernel::KernelType KT, double c, double alpha)
     case Kernel::KernelType::RAYLEIGH:
         f_smoother.setKernel(new Kernel::RayleighKernel(c, alpha));
         break;
+    case Kernel::KernelType::INVERSE:
+        f_smoother.setKernel(new Kernel::RCGaussianInverseKernel(c, alpha));
     default:
         f_smoother.setKernel(new Kernel::Kernel());
         break;
     }
 }
 
-void PostProcInterface::smoothenMesh(double rho, uint16_t iterations, bool wide) {
+void PostProcInterface::smoothenMesh(double rho, uint16_t iterations, bool wide, bool useDelta) {
     if (!f_smoother.nbPrecalculated()) {
         std::cout << "\t[MPP] Vertex neighbour data is not yet calculated for current mesh." << std::endl
                   << "\t[MPP] Precalculating neighbours..." << std::endl;
@@ -77,12 +80,13 @@ void PostProcInterface::generateMCMesh(const SDF::SDFCSample &sdf, double level)
 }
 
 void PostProcInterface::generateMCMeshVG(double level) {
-    if (f_voxelGrid == nullptr) {
-        std::cout << "\t[MPP] Error: The voxel grid was not passed to the post processing module." << std::endl;
-    }
-    f_smoother.clearNb();
-    MarchingCubes::MarchingCubesMeshGenerator generator;
-    generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(*f_voxelGrid), level);
+    // if (f_voxelGrid == nullptr) {
+    //     std::cout << "\t[MPP] Error: The voxel grid was not passed to the post processing module." << std::endl;
+    // }
+    // f_smoother.clearNb();
+    // MarchingCubes::MarchingCubesMeshGenerator generator;
+    // generator.generateMCMesh(f_mesh, SDF::SDFCSample::convertVoxelGridToSDFC(vg), level);
+    //TODO Add VG mesh generation
     return;
 }
 

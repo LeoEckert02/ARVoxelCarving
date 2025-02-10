@@ -71,7 +71,7 @@ void Mesh::MeshSmoother::precalculateNeighbours(const Mesh::TriangleMesh &mesh) 
     nbpc = true;
 }
 
-void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterations, bool wide) const {
+void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterations, bool wide, bool useDelta) const {
     for (uint16_t i = 0; i < iterations; i++) {
         // Make new mesh coordinate vector
         std::vector<Vector3d> vertexCoordinates(mesh.getVertexCount());
@@ -102,18 +102,34 @@ void Mesh::MeshSmoother::smoothenMesh(Mesh::TriangleMesh &mesh, uint16_t iterati
 
             uint16_t di = neighbours.size();
 
-            double delta = calculateDelta(mesh, neighbours, iter->f_id);
+            double delta = 0.;
+            if (useDelta) {
+                delta = calculateDelta(mesh, neighbours, iter->f_id);
 
-            double kerMultiplier = f_kernel->g(delta) / f_rho;
+                double kerMultiplier = f_kernel->g(delta) / f_rho;
 
-            // Divide multiplier by di for implicit averaging
-            kerMultiplier /= (double)(di);
+                // Divide multiplier by di for implicit averaging
+                kerMultiplier /= (double)(di);
 
-            // Iterate over neighbours
-            for (auto nb: neighbours) {
-                Vector3d vj = mesh.getVertex(nb).f_coordinates;
-                // Add displacement vector
-                vertexCoordinates.at(id) += kerMultiplier * (vj - vi);
+                // Iterate over neighbours
+                for (auto nb: neighbours) {
+                    Vector3d vj = mesh.getVertex(nb).f_coordinates;
+                    // Add displacement vector
+                    vertexCoordinates.at(id) += kerMultiplier * (vj - vi);
+                }
+            }
+            else {
+                for (auto nb: neighbours) {
+                    Vector3d vj = mesh.getVertex(nb).f_coordinates;
+                    Vector3d distanceVec = vj - vi;
+                    delta = distanceVec.norm();
+                    double kerMultiplier = f_kernel->g(delta) / f_rho;
+
+                    // Divide multiplier by di for implicit averaging
+                    kerMultiplier /= (double)(di);
+                    // Add displacement vector
+                    vertexCoordinates.at(id) += kerMultiplier * distanceVec;
+                }
             }
 
             id++;

@@ -1,8 +1,7 @@
 #include "PostProcInterface.h"
 
 void PostProcInterface::setVoxelGrid(SDF::VoxelGrid* voxelGrid) {
-    // TODO Uncomment
-    //f_voxelGrid = voxelGrid;
+    f_voxelGrid = voxelGrid;
 }
 
 bool PostProcInterface::loadMesh(std::string path)

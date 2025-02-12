@@ -146,5 +146,5 @@ ARVoxelCarving/
 
 - **Leo Eckert** - [@LeoEckert02]()
 - **Baran Gursoy** - [@barangursoy]()
-- **Alexander Brovko** - [@siddharthasaha]()
+- **Alexander Brovko** - [@XandlerQ]()
 - **Giorgi Tsartsidze** - [@giokepa]()

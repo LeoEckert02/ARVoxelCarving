@@ -22,7 +22,6 @@ if __name__ == "__main__":
     needs_input = True
     needs_bounding_box = True
     show_results = False
-    print(sys.argv)
     if len(sys.argv) > 1:
         needs_input = sys.argv[1].lower() == "true"
     if len(sys.argv) > 2:

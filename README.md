@@ -34,7 +34,8 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
 
 ### Prerequisites
 
-1. Docker installed on WSL2/Linux/Windows.
+1. Docker installed on WSL2/Linux/Windows (**WARNING** if using windows, please use manual segmentation
+   defined in section **alternative methods**).
 2. Download the Trained Model
    from [here](https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt)
 3. Move the model to `Segmentation/sam2.1_model` directory. **(Important)** this step is for setting
@@ -132,7 +133,9 @@ by following these steps:
 ```bash
 python Segmentation/segment_main.py
 ```
+
 or
+
 ```bash
 python3 Segmentation/segment_main.py
 ```
@@ -176,7 +179,35 @@ ARVoxelCarving/
 
 ---
 
-## Requirements
+## Utils
+
+### Known Issues
+
+at some point the docker might give you this error:
+
+```bash
+Read timeout
+```
+
+This suggest that the docker is not running properly, you can try to restart the docker, or rebuild the docker image.
+This is due to if you are running the docker on WSL2, the docker might not have enough memory to run the application.
+
+Another error while automatic segmentation:
+
+```bash
+qt.qpa.xcb: could not connect to display 
+qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "/usr/local/lib/python3.12/site-packages/cv2/qt/plugins" even though it was found.
+This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+
+Available platform plugins are: xcb.
+```
+
+simple solution to this, is just reinstalling the docker image.
+
+```bash
+docker rmi 3dsmc --force // removes the image
+docker system prune // removes all unused/untagged images  
+```
 
 ### Libraries
 

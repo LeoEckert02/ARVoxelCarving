@@ -17,6 +17,7 @@ public:
     bool needs_input = true;
     bool needs_bounding_box = true;
     bool show_results = false;
+    bool use_automatic_python_script = true;
 };
 
 class SamSegmentationGenerator {

@@ -39,6 +39,13 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
    from [here](https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt)
 3. Move the model to `Segmentation/sam2.1_model` directory. **(Important)** this step is for setting
    up the segmentation module.
+4. Remove files from `resources/u_segmented_output` directory. **(Important)** this step is for setting up the
+   segmentation module.
+5. Images you want to use for the segmentation should be placed in the `resources/u_input` directory.
+6. Try to order your images, so the program can index the images and camera intrinsics/extrinsics correctly.
+7. Make sure you have sufficient disk space for the Docker image.
+8. If you are using **WSL** memory might create an issue when you choose high resolutions for voxel carving. You might
+   need to adjust it in the Docker settings.
 
 ### Build Instructions
 
@@ -51,10 +58,7 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
    ```bash
    docker build -t 3dsmc .
    ``` 
-   Windows users can use the following command:
-   ```bash
-   docker build -t 3dsmc . --platform linux/amd64
-   ```
+
    **Note:** The build process may take a while due to the large image size. \
    **Note:** Look through the docker file it might need adjustment.
 3. Run the Docker container:
@@ -85,7 +89,6 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
 
 ## Usage Instructions
 
-(TO BE UPDATED)
 Using the application is quite easy. As we have described in the Build Instructions, we know how to run the
 application. The parameters are set in the `main.cpp` file. The application will run the following steps:
 
@@ -108,11 +111,44 @@ You can set the parameters as you want. Here is the list:
 You can leave all of these parameters as defaults, by not changing anything. And it will run with recommended
 settings.
 
+**cmd Parameter** can be used to adjust the camera resolution. The default is 300.
+for example `./ARVoxelCarving 300` will set the resolution to 300, and will calculate other dimensions to be cubic
+voxels
+
 ### Overall Results
 
 The idea is that the application will run the segmentation module, and then it will run the voxel carving module.
-Here is the rundown
+The output will be a **mesh file** in `build` folder that you can visualize in any 3D viewer.
 ---
+
+### Alternative methods
+
+The problem is that running python from C++ can have some issues, regarding all kinds of permissions/dependencies. So,
+we have provided an alternative method to run the segmentation module. You can run the segmentation module separately
+by following these steps:
+
+1. run the following command:
+
+```bash
+python Segmentation/segment_main.py
+```
+or
+```bash
+python3 Segmentation/segment_main.py
+```
+
+if this causes issues, please make sure you have `requirments.txt` installed (docker should have installed it by
+default).
+
+2. Go into `main.cpp` and add 1 line of code:
+
+```cpp
+const SegmentationParams params;
+params.use_automatic_python_script = false; // This line
+auto silhouettes = SamSegmentationGenerator::grabSegmentedImages(params);
+```
+
+3. Compile and run the application
 
 ## File Structure
 
@@ -147,7 +183,6 @@ ARVoxelCarving/
 - **OpenCV**: AR marker detection and segmentation.
 - **Eigen**: Matrix operations.
 - **Ceres**: Optional for pose optimization.
-- **OpenCV**: For image processing.
 
 ### Authors
 

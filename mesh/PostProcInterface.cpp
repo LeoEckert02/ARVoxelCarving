@@ -210,6 +210,7 @@ void PostProcInterface::setKernelMenu() {
                   << "\t[MPP] 3) Gaussian;" << std::endl
                   << "\t[MPP] 4) Laplace;" << std::endl
                   << "\t[MPP] 5) Rayleigh;" << std::endl
+                  << "\t[MPP] 6) Inverse Gaussian;" << std::endl
                   << "\t[MPP] (Input \"Exit\" to exit)" << std::endl << std::endl
                   << "\t[MPP] >> ";
         std::cin >> input;
@@ -219,7 +220,7 @@ void PostProcInterface::setKernelMenu() {
             continue;
         }
         option = std::stoi(input);
-        if (option > 0 and option <= 5) {
+        if (option > 0 and option <= 6) {
             double c, alpha;
             if (option != 1) {
                 std::cout << "\t[MPP] Input a value for kernel parameter c (default: 1.):" << std::endl
@@ -267,6 +268,11 @@ void PostProcInterface::setKernelMenu() {
                 break;
             case 5:
                 setKernel(Kernel::KernelType::RAYLEIGH, c, alpha);
+                std::cout << "\t[MPP] Kernel set successfully." << std::endl << std::endl;
+                exit = true;
+                break;
+            case 6:
+                setKernel(Kernel::KernelType::INVERSE, c, alpha);
                 std::cout << "\t[MPP] Kernel set successfully." << std::endl << std::endl;
                 exit = true;
                 break;

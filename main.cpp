@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     auto silhouettes = SamSegmentationGenerator::grabSegmentedImages(params);
 
     // Rest of the code
-    VoxelCarve voxelCarve(silhouettes, resolution, true); // the number is the highest resolution for a dimension (others will be calculated automatically to create cubic voxels)
+    VoxelCarve voxelCarve(silhouettes, resolution, true); // the resolution number is the highest resolution for a dimension (others will be calculated automatically to create cubic voxels)
     VoxelGrid carved_voxel_grid = voxelCarve.carve_voxel_grid();
 
     PostProcInterface postProcInterface;

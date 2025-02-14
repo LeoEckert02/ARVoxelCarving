@@ -233,7 +233,7 @@ void PostProcInterface::setKernelMenu() {
                     continue;
                 }
                 c = std::stod(input);
-                std::cout << "\t[MPP] Input a value in range (0.0, 1.0] for kernel interpolation with local averaging," << std::endl
+                std::cout << "\t[MPP] Input a value in range (0.0, 1.0] for kernel interpolation with local averaging (default: 0.75)," << std::endl
                     << "\t[MPP] 0.0 - only local averaging, 1.0 - no local averaging:" << std::endl
                     << "\t[MPP] (Input \"Exit\" to exit)" << std::endl << std::endl
                     << "\t[MPP] >> ";
@@ -301,7 +301,7 @@ void PostProcInterface::smoothenMeshMenu() {
             continue;
         }
         double rho = stod(input);
-        std::cout << "\t[MPP] Input a number of smoothing iterations:" << std::endl
+        std::cout << "\t[MPP] Input a number of smoothing iterations (default: 15):" << std::endl
                 << "\t[MPP] (Input \"Exit\" to exit)" << std::endl << std::endl
                 << "\t[MPP] >> ";
         std::cin >> input;

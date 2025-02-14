@@ -114,7 +114,7 @@ settings.
 
 **cmd Parameter** can be used to adjust the camera resolution. The default is 300.
 for example `./ARVoxelCarving 300` will set the resolution to 300, and will calculate other dimensions to be cubic
-voxels
+voxels (You can also just use `./ARVoxelCarving` without parameters, it will use the default value).
 
 ### Camera Calibration Instructions 
 
@@ -146,7 +146,7 @@ or
 python3 Segmentation/segment_main.py
 ```
 
-if this causes issues, please make sure you have `requirments.txt` installed (docker should have installed it by
+if this causes issues, please make sure you have `requirements.txt` installed (docker should have installed it by
 default).
 
 2. Go into `main.cpp` and add 1 line of code:

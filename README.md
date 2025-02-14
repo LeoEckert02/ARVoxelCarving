@@ -84,10 +84,11 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
 8. Run the application:
    ```bash
     ./ARVoxelCarving
-   or
-   ./ARVoxelCarving {resolution size}
     ```
-
+    or
+   ```bash
+    ./ARVoxelCarving {grid resolution size}
+    ```
 ---
 
 ## Usage Instructions

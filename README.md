@@ -115,15 +115,17 @@ You can set the parameters as you want. Here is the list:
 You can leave all of these parameters as defaults, by not changing anything. And it will run with recommended
 settings.
 
-**cmd Parameter** can be used to adjust the camera resolution. The default is 300.
-for example `./ARVoxelCarving 300` will set the resolution to 300, and will calculate other dimensions to be cubic
-voxels (You can also just use `./ARVoxelCarving` without parameters, it will use the default value).
-
 ### Camera Calibration Instructions 
 
 1. Print the [checkerboard pattern](./resources/camera_calibration/Checkerboard-A4-25mm-10x7.pdf) on a sheet of paper.  
 2. Take **10–20 photos** of the checkerboard from various angles. Ensure good lighting and sharp focus for the best results.  
 3. Place the captured images in the following directory: `/resources/u_calibration`
+
+**cmd Parameter** can be used to adjust the camera resolution. The default is 300.
+for example `./ARVoxelCarving 300` will set the resolution to 300, and will calculate other dimensions to be cubic
+voxels (You can also just use `./ARVoxelCarving` without parameters, it will use the default value).
+
+After the voxel carving stage the post processing interface will appear in the console. The consoe outputs will guide you through the post processing stage, including the possibility of setting mesh smoothing parameters.
 
 ### Overall Results
 

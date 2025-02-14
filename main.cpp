@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Using resolution: " << resolution << std::endl;
 
-    // Main Chad Segmentation part
+    // Segmentation part
     const SegmentationParams params;
     auto silhouettes = SamSegmentationGenerator::grabSegmentedImages(params);
 
@@ -31,9 +31,8 @@ int main(int argc, char* argv[]) {
 
     PostProcInterface postProcInterface;
     postProcInterface.setVoxelGrid(&carved_voxel_grid);
-    postProcInterface.generateMCMeshVG(0.);
-    postProcInterface.setKernel(Kernel::KernelType::INVERSE, 1., 0.75);
-    postProcInterface.smoothenMesh(2., 20);
-    
-    postProcInterface.writeMesh("output_mesh.off");
+    postProcInterface.generateMeshFromVoxelGridMenu();
+    postProcInterface.setKernelMenu();
+    postProcInterface.smoothenMeshMenu();
+    postProcInterface.writeMeshMenu();
 }

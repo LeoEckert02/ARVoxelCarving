@@ -125,7 +125,7 @@ settings.
 for example `./ARVoxelCarving 300` will set the resolution to 300, and will calculate other dimensions to be cubic
 voxels (You can also just use `./ARVoxelCarving` without parameters, it will use the default value).
 
-After the voxel carving stage the post processing interface will appear in the console. The consoe outputs will guide you through the post processing stage, including the possibility of setting mesh smoothing parameters.
+After the voxel carving stage, the post-processing interface will appear in the console, providing step-by-step guidance. You will have the option to adjust mesh smoothing parameters, with the Inverse Gaussian smoothing kernel being the recommended choice. While optimal smoothing settings depend on the target object, the interface suggests default values for reasonable results.
 
 ### Overall Results
 

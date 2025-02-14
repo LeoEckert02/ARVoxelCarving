@@ -1,0 +1,22 @@
+---
+services:
+  code-server:
+    image: 3dsmc
+    container_name: 3dsmc
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - PASSWORD=password #optional
+      - SUDO_PASSWORD=password #optional
+      - DEFAULT_WORKSPACE=/config/workspace #optional
+    volumes:
+      - ./app/config:/config
+      - .:/config/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    ports:
+      - "8443:8080"
+    restart: unless-stopped

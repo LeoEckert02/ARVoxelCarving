@@ -11,8 +11,11 @@ std::vector<cv::Mat> SamSegmentationGenerator::grabSegmentedImages(const Segment
 
     std::cout << params.pythonVersion << std::endl;
 
+    // Check if directory is empty
+    if (fs::is_empty(path)) {
+        run_segmentation_script(params);
+    }
     // Call this to run the segmentation script
-    run_segmentation_script(params);
 
     std::vector<std::string> filePaths;
     for (const auto &entry: fs::directory_iterator(path)) {

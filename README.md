@@ -53,8 +53,8 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
    ``` 
    Windows users can use the following command:
    ```bash
-    docker build -t 3dsmc . --platform linux/amd64
-    ```
+   docker build -t 3dsmc . --platform linux/amd64
+   ```
    **Note:** The build process may take a while due to the large image size. \
    **Note:** Look through the docker file it might need adjustment.
 3. Run the Docker container:
@@ -85,6 +85,7 @@ The c++ application reconstructs a 3D object from multiple images using voxel ca
 
 ## Usage Instructions
 
+(TO BE UPDATED)
 Using the application is quite easy. As we have described in the Build Instructions, we know how to run the
 application. The parameters are set in the `main.cpp` file. The application will run the following steps:
 
@@ -94,17 +95,23 @@ const SegmentationParams params;
 
 You can set the parameters as you want. Here is the list:
 
-- `segmentationDir`: The directory where segmnetation happens;
-- `venvName `: To set the virtual environment name **DEPRECATED**;
-- `pythonVersion`: To set the python version **DEPRECATED**;
-- `needs_input`: Using points, this parameter is for the segmentation, so it can segment the images with greater
+- `params.segmentationDir`: The directory where segmentation happens;
+- `params.venvName `: To set the virtual environment name **DEPRECATED**;
+- `params.pythonVersion`: To set the python version **DEPRECATED**;
+- `params.needs_input`: Using points, this parameter is for the segmentation, so it can segment the images with greater
   accuracy;
-- `needs_bounding_box`: Using bounding boxes to mark the object, this parameter is for the segmentation, so it can
+- `params.needs_bounding_box`: Using bounding boxes to mark the object, this parameter is for the segmentation, so it
+  can
   segment the images with even greater accuracy;
 - `params.show_results`: If you want to visualize the output segmented images;
 
 You can leave all of these parameters as defaults, by not changing anything. And it will run with recommended
 settings.
+
+### Overall Results
+
+The idea is that the application will run the segmentation module, and then it will run the voxel carving module.
+Here is the rundown
 ---
 
 ## File Structure

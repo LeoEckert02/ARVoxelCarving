@@ -25,9 +25,13 @@ The application was created for **TUM IN2354: 3D Scanning & Motion Capture cours
 The c++ application reconstructs a 3D object from multiple images using voxel carving using AR markers. Steps include:
 
 - **Preprocessing**: Camera calibration, pose estimation, and foreground segmentation.
+![bird_input](https://github.com/user-attachments/assets/73fb9651-3794-45ab-a179-b343ac8173af)
+![bird_segmentation](https://github.com/user-attachments/assets/84f11c63-26b1-492b-b01a-2dd133952739)
 - **Voxel Carving**: Constructing a voxel grid and refining it using silhouettes.
+![bird_voxel_grid_h (1)](https://github.com/user-attachments/assets/3645d82d-5a6c-48d8-b2af-21a50e172d9b)
+![bird_mesh (1)](https://github.com/user-attachments/assets/df206d69-f8c7-4377-b7f1-452a0f493c15)
 - **Postprocessing**: Converting the voxel grid into a mesh and smoothing it for visualization.
-
+![image](https://github.com/user-attachments/assets/b4f82fb2-1067-44a3-9413-02f75f86b1f6)
 ---
 
 ## Installation
